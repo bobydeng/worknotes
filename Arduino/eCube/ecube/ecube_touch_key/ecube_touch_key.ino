@@ -4,7 +4,7 @@
 #define PORT_TOUCH2 PINB
 #define DDR_TOUCH2 DDRB
 
-#define MAX_ELAPSE  50
+#define MAX_KEY_ELAPSE  50
 
 enum FACE {
   FRONT,
@@ -106,7 +106,7 @@ void check_key_wipe(byte key_inputs, enum FACE face) {
     if(key_inputs & (1 << i)) {
       ot[i] = 0;
       on_keys++;
-    } else if(ot[i] < MAX_ELAPSE) {
+    } else if(ot[i] < MAX_KEY_ELAPSE) {
       ot[i]++;
     }
   }
@@ -124,7 +124,7 @@ void check_key_wipe(byte key_inputs, enum FACE face) {
       NB_KEY nb_k = nb_keys[i][j];
       int k_idx = nb_k.key;
       int e_idx = nb_k.edge;
-      if(ot[k_idx] >= MAX_ELAPSE) {
+      if(ot[k_idx] >= MAX_KEY_ELAPSE) {
         continue;
       }
       enum FACE nf = nfs[e_idx].face;
@@ -134,7 +134,7 @@ void check_key_wipe(byte key_inputs, enum FACE face) {
       }else {
         Serial.print("\n");
       }
-      ot[k_idx] = MAX_ELAPSE; //triggered
+      ot[k_idx] = MAX_KEY_ELAPSE; //triggered
      }
   }
 }
@@ -150,85 +150,9 @@ void loop() {
   byte key_inputs = PORT_TOUCH2 & 0x0F;
   check_key_wipe(key_inputs, FRONT);
 
-  /*if( key_inputs & 1) {
-    if(ot[1] < MAX_ELAPSE) {
-      Serial.print("R'\n");
-      ot[1] = MAX_ELAPSE; //triggered
-    } else if(ot[2] < MAX_ELAPSE) {
-      Serial.print("U\n");
-      ot[2] = MAX_ELAPSE; //triggered
-    }
-  } else if( key_inputs & 2) {
-    if(ot[0] < MAX_ELAPSE) {
-      Serial.print("R\n");
-      ot[0] = MAX_ELAPSE; //triggered
-    } else if(ot[3] < MAX_ELAPSE) {
-      Serial.print("D'\n");
-      ot[3] = MAX_ELAPSE; //triggered
-    }
-  } else if( key_inputs & 4) {
-    if(ot[0] < MAX_ELAPSE) {
-      Serial.print("U'\n");
-      ot[0] = MAX_ELAPSE; //triggered
-    } else if(ot[3] < MAX_ELAPSE) {
-      Serial.print("L\n");
-      ot[3] = MAX_ELAPSE; //triggered
-    }
-  } else if( key_inputs & 8) {
-    if(ot[1] < MAX_ELAPSE) {
-      Serial.print("D\n");
-      ot[1] = MAX_ELAPSE; //triggered
-    } else if(ot[2] < MAX_ELAPSE) {
-      Serial.print("L'\n");
-      ot[2] = MAX_ELAPSE; //triggered
-    }
-  }*/
-
-  //key_inputs = PORT_TOUCH1 >> 4;
-  //check_key_wipe(key_inputs, UP);
-  /*short *ot = off_times[1];  
-  for(int i=0; i < 4; i++ ){
-    if(key_inputs & (1 << i)) {
-      ot[i] = 0;
-    } else if(ot[i] < MAX_ELAPSE) {
-      ot[i]++;
-    }
-  }
-
-
-  if( key_inputs & 1) {
-    if(ot[1] < MAX_ELAPSE) {
-      Serial.print("R'\n");
-      ot[1] = MAX_ELAPSE; //triggered
-    } else if(ot[2] < MAX_ELAPSE) {
-      Serial.print("B\n");
-      ot[2] = MAX_ELAPSE; //triggered
-    }
-  } else if( key_inputs & 2) {
-    if(ot[0] < MAX_ELAPSE) {
-      Serial.print("R\n");
-      ot[0] = MAX_ELAPSE; //triggered
-    } else if(ot[3] < MAX_ELAPSE) {
-      Serial.print("F'\n");
-      ot[3] = MAX_ELAPSE; //triggered
-    }
-  } else if( key_inputs & 4) {
-    if(ot[0] < MAX_ELAPSE) {
-      Serial.print("B'\n");
-      ot[0] = MAX_ELAPSE; //triggered
-    } else if(ot[3] < MAX_ELAPSE) {
-      Serial.print("L\n");
-      ot[3] = MAX_ELAPSE; //triggered
-    }
-  } else if( key_inputs & 8) {
-    if(ot[1] < MAX_ELAPSE) {
-      Serial.print("F\n");
-      ot[1] = MAX_ELAPSE; //triggered
-    } else if(ot[2] < MAX_ELAPSE) {
-      Serial.print("L'\n");
-      ot[2] = MAX_ELAPSE; //triggered
-    }
-  }*/
+  //up face
+  key_inputs = PORT_TOUCH1 >> 4;
+  check_key_wipe(key_inputs, UP);
   
   delay(10);
 }
