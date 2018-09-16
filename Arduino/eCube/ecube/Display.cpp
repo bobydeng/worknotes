@@ -6,7 +6,7 @@
  * on/off of the 3 color channels are specified, so the color 
  * depth of each channel is 3(0,1,2) 
 */
-int color_map[][2][3]={
+/*int color_map[][2][3]={
   {{0, 1, 1}, {0, 1, 1}}, //RED
   {{1, 0, 1}, {1, 0, 1}}, //GREEN
   {{1, 1, 0}, {1, 1, 0}}, //BLUE
@@ -14,33 +14,46 @@ int color_map[][2][3]={
   {{1, 0, 0}, {1, 0, 0}}, //CYAN
   {{0, 0, 0}, {0, 0, 0}}, //WHITE
   {{0, 0, 1}, {0, 0, 1}}  //YELLOW
-};
+};*/
 
+int color_map[][2][3]={
+  {{1, 0, 0}, {1, 0, 0}}, //RED
+  {{0, 1, 0}, {0, 1, 0}}, //GREEN
+  {{0, 0, 1}, {0, 0, 1}}, //BLUE
+  {{1, 0, 1}, {1, 0, 1}}, //PURPLE
+  //{{0, 1, 1}, {0, 1, 1}}, //CYAN
+  {{1, 1, 0}, {1, 1, 0}}, //YELLOW
+  {{1, 1, 1}, {1, 1, 1}}, //WHITE
+  {{1, 1, 0}, {1, 1, 0}}  //YELLOW
+};
 
 inline void write164(byte data) {
   for(int i=0; i<8; i++) {
     if(data & 0x80 ) {
-      PORTE |= 0x20;  //PE5
-      //digitalWrite(DA164, HIGH);
+      dataUp();
     } else {
-      PORTE &= 0xDF;  //PE5
-      //digitalWrite(DA164, LOW);
+      dataDown();
     }
-    PORTE &= 0xEF;  //PE4
-    //digitalWrite(CLK164, LOW);
+    dataClkDown();
     data <<= 1; //put this code here to increase puls width
-    PORTE |= 0x10;  //PE4
-    //digitalWrite(CLK164, HIGH);
+    dataClkUp();
   }
 }
 
+
 Display::Display() {
-  DDR_LINE = 0XFF;
+  face = 0;
+  tick = 0;
+  channel = 0;
+  phase = 0;
+  
+  DDR_LINE = 0X1F;
   PORT_LINE = 23; //0xFF //turn off all
 
   pinMode(CLK164, OUTPUT);
   pinMode(DA164, OUTPUT);
-  pinMode(BLK9, OUTPUT);  
+  pinMode(STCP595,OUTPUT);  
+  pinMode(BLK9, OUTPUT); 
 }
 
 void Display::refresh() {
@@ -50,27 +63,36 @@ void Display::refresh() {
     return;
   }
   
-  for(int face=0; face<6; face++) {
-    short color = img_mapped[phase][face][channel];
-    int line = face * 3 + channel;
-    line = line < 6 ? line : line + 1; //workaround for a hardware defect
-    PORT_LINE = 23; //0xFF //turn off all
-    write164((byte) color);
-    if(color & 0x100 ) {
-      PORTE |= 0x08;  //PE3
-      //digitalWrite(BLK9, HIGH);
-    } else {
-      PORTE &= 0xF7;  //PE3
-      //digitalWrite(BLK9, LOW);
-    }
-  
-    PORT_LINE = line;
+  short color = img_mapped[phase][face][channel];
+  int line = face * 3 + channel;
+  if (line == 14) { //Fix hardware bug
+    line = 18;
   }
-  channel++;
-  if(channel >= 3) {
-    channel = 0;
-    phase++;
-    phase %=2;
+  //line = line < 6 ? line : line + 1; //workaround for a hardware defect
+  //PORT_LINE = 23; //0xFF //turn off all
+
+  write164((byte) color);
+  if(color & 0x100 ) {
+    blk9Up();
+  } else {
+    blk9Down();
+  }
+  
+  //PORT_LINE = 23; //0xFF //turn off all
+  PORT_LINE = line;
+  regClkUp();
+  _NOP();
+  regClkDown();
+
+  face++;
+  if(face >= 6) {
+    face = 0;
+    channel++;
+    if(channel >= 3) {
+      channel = 0;
+      phase++;
+      phase %= 2;
+    }
   }
 }
 

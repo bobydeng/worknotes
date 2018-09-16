@@ -1,11 +1,9 @@
-/*******************
-  Display
- ******************/
-#ifndef __DISPLAY_H__
-#define __DISPLAY_H__
- 
-#include "common.h"
-#include <Arduino.h>
+// avr-libc defines _NOP() since 1.6.2  
+#ifndef _NOP  
+#define _NOP() do { __asm__ volatile ("nop"); } while (0)  
+#endif  
+
+#define __UNO__  __UNO__
 
 #ifdef __UNO__
 
@@ -68,20 +66,64 @@
 #endif
 
 
-#define REFRESH_PERIOD 1
+inline void write164(byte data) {
+  for(int i=0; i<8; i++) {
+    if(data & 0x80 ) {
+      dataUp();
+    } else {
+      dataDown();
+    }
+    dataClkDown();
+    data <<= 1; //put this code here to increase puls width
+    dataClkUp();
+  }
+}
 
-class Display {
-  private:
-    short img_mapped[2][6][3]; //[phase][face][channel]
-    int phase; //2 phases
-    int face;
-    int channel;
-    int tick; //in 100 uS
-    void map_color(int phase, int channel, const enum COLOR (&face_img)[6][9]);
-  public:
-    Display();
-    void refresh();
-    void draw(const enum COLOR (&face_img)[6][9]);
-};
 
-#endif //__DISPLAY_H__
+void setup() {
+  DDR_LINE = 0XFF;
+  PORT_LINE = 23; //0xFF //turn off all
+
+  pinMode(CLK164, OUTPUT);
+  pinMode(DA164, OUTPUT);
+  pinMode(BLK9, OUTPUT); 
+  pinMode(STCP595,OUTPUT);
+}
+
+byte line=0;
+int channel=0;
+short color ;
+int face=0;
+
+void loop() {
+
+  int line =   face * 3 + channel;
+  if(line == 1 || line == 2){//% 3  == 1) {//|| line >2) {
+      color = 0b111111111;
+  } else {
+    color = 0;
+  }
+  color = 0b111111111;
+  write164((byte) color);
+  if(color & 0x100 ) {
+    blk9Up();
+  } else {
+    blk9Down();
+  }
+  //PORT_LINE = 23; //0xFF //turn off all
+  PORT_LINE = line;
+  regClkUp();
+  _NOP();
+  regClkDown();
+
+  face++;
+  face %= 6;
+
+  if(face == 0) {
+    channel++;
+    channel %= 3;
+  }
+  delayMicroseconds(100);
+
+}
+

@@ -1,13 +1,16 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+
+#define __UNO__  __UNO__
+
 enum FACE {
   FRONT,
   RIGHT,
-  UP,
-  BACK,
   DOWN,
-  LEFT
+  LEFT,
+  BACK,
+  UP
 };
 
 //ordered ACW

@@ -40,38 +40,66 @@ int edge_block_idxs[][3] = {
 // index starts with zero, edge defined with block index in anti-clockwise direction
 int face_border_block_idxs[] = { 0, 1, 2, 5, 8, 7, 6, 3};
 
-FaceNeighber face_neighbers[6][4] = { 
-  //NB of FRONT face
-  {{LEFT, E_RIGHT}, 
+//NB of FRONT face
+FaceNeighber nb_front[4] = { 
+  {LEFT, E_RIGHT}, 
   {DOWN, E_TOP}, 
   {RIGHT, E_LEFT}, 
-  {UP, E_BOTTOM} }, 
-  //NB of RIGHT face
-  {{FRONT, E_RIGHT}, 
+  {UP, E_BOTTOM} };
+
+//NB of RIGHT face
+FaceNeighber nb_right[4] = {   
+  {FRONT, E_RIGHT}, 
   {DOWN, E_RIGHT}, 
   {BACK, E_LEFT}, 
-  {UP, E_RIGHT} }, 
-  //NB of UP face
-  {{LEFT, E_TOP}, 
+  {UP, E_RIGHT} };
+
+//NB of UP face
+FaceNeighber nb_up[4] = {    
+  {LEFT, E_TOP}, 
   {FRONT, E_TOP}, 
   {RIGHT, E_TOP}, 
-  {BACK, E_TOP} }, 
-  //NB of BACK face
-  {{RIGHT, E_RIGHT}, 
+  {BACK, E_TOP} };
+
+//NB of BACK face
+FaceNeighber nb_back[4] = {      
+  {RIGHT, E_RIGHT}, 
   {DOWN, E_BOTTOM}, 
   {LEFT, E_LEFT}, 
-  {UP, E_TOP} },
-  //NB of DOWN face
-  {{LEFT, E_BOTTOM}, 
+  {UP, E_TOP} };
+  
+//NB of DOWN face
+FaceNeighber nb_down[4] = {      
+  {LEFT, E_BOTTOM}, 
   {BACK, E_BOTTOM}, 
   {RIGHT, E_BOTTOM}, 
-  {FRONT, E_BOTTOM} },
-  //NB of LEFT face
-  {{BACK, E_RIGHT}, 
+  {FRONT, E_BOTTOM} };
+  
+//NB of LEFT face
+FaceNeighber nb_left[4] = {      
+  {BACK, E_RIGHT}, 
   {DOWN, E_LEFT}, 
   {FRONT, E_LEFT}, 
-  {UP, E_LEFT} }, 
-};
+  {UP, E_LEFT} };
+
+FaceNeighber* face_neighbers(enum FACE face) {
+  switch (face) {
+    case FRONT:
+      return nb_front;
+    case BACK:
+      return nb_back;
+    case LEFT:
+      return nb_left;
+    case RIGHT:
+      return nb_right;
+    case UP:
+      return nb_up;
+    case DOWN:
+      return nb_down;
+    default:
+      return 0;
+  }
+}
 
 CubeEdge::CubeEdge(EDGE edge, COLOR* raw_face_data) {
   this->raw_face_data = raw_face_data;
@@ -161,9 +189,10 @@ Cube::Cube() {
   }
 
   for(int i=0;i<6;i++) {
+    FaceNeighber* fn = face_neighbers(i);
     for(int j=0;j<4;j++) {
-      FACE nb_face = face_neighbers[i][j].face;
-      EDGE nb_edge = face_neighbers[i][j].edge;
+      FACE nb_face = fn[j].face;
+      EDGE nb_edge = fn[j].edge;
       faces[i]->set_neighber_edge(j, faces[nb_face]->get_edge(nb_edge));
     }
   }
@@ -180,7 +209,7 @@ Cube::~Cube() {
 void Cube::reset() {
   for(int i=0; i< 6; i++) {
     for( int j=0; j<9; j++) {
-      raw_data[i][j] = i;
+      raw_data[i][j] = i;//WHITE;
     }
     /*if(i==UP) {
     for( int j=0; j<3; j++) {
@@ -225,14 +254,14 @@ void Cube::turn(enum FACE face, enum DIR dir){
 }
 
 void Cube::on_wipe(enum FACE face, enum EDGE edge, enum DIR dir){
-  enum FACE nf = face_neighbers[face][edge].face;
+  enum FACE nf = face_neighbers(face)[edge].face;
   /*Serial.write(get_face_name(nf));
   if(dir == ACW ) {
     Serial.print("'\n");
   }else {
     Serial.print("\n");
   }*/
-  turn(face_neighbers[face][edge].face, dir);
+  turn(nf, dir);
 }
 
 void Cube::on_tick_10ms(){
@@ -274,14 +303,14 @@ void Cube::_turn(enum FACE face, enum DIR dir) {
 
   //copy edge of the turnning face to temp buff
   copy(face, to_idx, temp_edge);
-  FaceNeighber from_nb, to_nb = face_neighbers[face][to_idx];
+  FaceNeighber from_nb, to_nb = face_neighbers(face)[to_idx];
   //copy first neighber to temp array
   copy(to_nb.face, to_nb.edge, temp_nb_edge);
   for(int i=0;i<3; i++ ){
     from_idx = to_idx + inc;
     //copy edge of the turnning face
     copy(face, from_idx, to_idx);
-    from_nb = face_neighbers[face][from_idx];
+    from_nb = face_neighbers(face)[from_idx];
     //copy edge of the neighber faces
     copy(from_nb.face, from_nb.edge, to_nb.face, to_nb.edge);
     to_idx = from_idx;

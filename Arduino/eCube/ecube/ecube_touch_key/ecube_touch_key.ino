@@ -146,13 +146,13 @@ void setup() {
 }
 
 void loop() {
-  //front face keys
-  byte key_inputs = PORT_TOUCH2 & 0x0F;
+  //front face
+  byte key_inputs = PORT_TOUCH1 >> 4;
   check_key_wipe(key_inputs, FRONT);
-
-  //up face
-  key_inputs = PORT_TOUCH1 >> 4;
-  check_key_wipe(key_inputs, UP);
+  
+  //right face keys
+  key_inputs = PORT_TOUCH2 & 0x0F;
+  check_key_wipe(key_inputs, RIGHT);
   
   delay(10);
 }

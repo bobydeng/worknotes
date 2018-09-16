@@ -19,7 +19,8 @@ struct NB_KEY nb_keys[][2] = {
 };
 
 Touch::Touch() {
-  DDR_TOUCH1 = 0;
+  initKeysF();
+  initKeysR();
 }
 
 void Touch::set_on_wipe_callback(pOnWipe on_wipe) {
@@ -63,11 +64,23 @@ void Touch::check_key_wipe(byte key_inputs, enum FACE face) {
 
 void Touch::on_tick_10ms() {
   //front face keys
-  byte key_inputs = PORT_TOUCH1;
-  check_key_wipe(key_inputs & 0x0F, FRONT);
+  byte key_inputs = readKeysF();
+  check_key_wipe(key_inputs, FRONT);
 
   //right face
-  check_key_wipe(key_inputs >> 4, RIGHT);
+  key_inputs = readKeysR();
+
+  //Fix hardware defect
+  /*byte tmp = key_inputs;
+  key_inputs &= 0xF3;
+  if(tmp & 0x4) {
+    key_inputs |= 0x08;
+  }
+  if(tmp & 0x8) {
+    key_inputs |= 0x04;
+  }*/
+  
+  check_key_wipe(key_inputs, RIGHT);
 }
 
 
