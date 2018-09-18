@@ -8,8 +8,8 @@ enum FACE {
   FRONT,
   RIGHT,
   DOWN,
+  BACK,  
   LEFT,
-  BACK,
   UP
 };
 

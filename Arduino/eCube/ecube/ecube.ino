@@ -19,7 +19,7 @@ void setup() {
   Serial.begin(9600);
   cube.set_on_turned_callback(on_turned);
   touch.set_on_wipe_callback(on_wipe);
-  key.set_on_press_callback(on_press);
+  key.set_on_down_callback(change_mode);
   cube.reset();
 }
 
@@ -45,7 +45,7 @@ struct Action actions[] = {{UP, CW}, {LEFT,CW}, {DOWN, ACW}, {FRONT, CW},{LEFT, 
 int act_cnt = 18;
 int steps = 0;
 
-void on_press() {
+void change_mode() {
   mode +=1;
   mode %= MODE_CNT;
   if( mode == MODE_DEMO ) {

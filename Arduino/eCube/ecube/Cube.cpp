@@ -40,6 +40,7 @@ int edge_block_idxs[][3] = {
 // index starts with zero, edge defined with block index in anti-clockwise direction
 int face_border_block_idxs[] = { 0, 1, 2, 5, 8, 7, 6, 3};
 
+/*
 //NB of FRONT face
 FaceNeighber nb_front[4] = { 
   {LEFT, E_RIGHT}, 
@@ -81,6 +82,50 @@ FaceNeighber nb_left[4] = {
   {DOWN, E_LEFT}, 
   {FRONT, E_LEFT}, 
   {UP, E_LEFT} };
+*/
+
+//Fix assembly bug
+//NB of FRONT face
+FaceNeighber nb_front[4] = { 
+  {LEFT, E_RIGHT}, 
+  {DOWN, E_BOTTOM}, 
+  {RIGHT, E_LEFT}, 
+  {UP, E_TOP} };
+
+//NB of RIGHT face
+FaceNeighber nb_right[4] = {   
+  {FRONT, E_RIGHT}, 
+  {DOWN, E_LEFT}, 
+  {BACK, E_LEFT}, 
+  {UP, E_LEFT} };
+
+//NB of UP face
+FaceNeighber nb_up[4] = {    
+  {LEFT, E_TOP}, 
+  {FRONT, E_TOP}, 
+  {RIGHT, E_TOP}, 
+  {BACK, E_TOP} };
+
+//NB of BACK face
+FaceNeighber nb_back[4] = {      
+  {RIGHT, E_RIGHT}, 
+  {DOWN, E_TOP}, 
+  {LEFT, E_LEFT}, 
+  {UP, E_BOTTOM} };
+  
+//NB of DOWN face
+FaceNeighber nb_down[4] = {      
+  {LEFT, E_BOTTOM}, 
+  {BACK, E_BOTTOM}, 
+  {RIGHT, E_BOTTOM}, 
+  {FRONT, E_BOTTOM} };
+  
+//NB of LEFT face
+FaceNeighber nb_left[4] = {      
+  {BACK, E_RIGHT}, 
+  {DOWN, E_RIGHT}, 
+  {FRONT, E_LEFT}, 
+  {UP, E_RIGHT} };
 
 FaceNeighber* face_neighbers(enum FACE face) {
   switch (face) {
