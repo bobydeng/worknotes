@@ -70,6 +70,7 @@ class Cube {
     Cube();
     ~Cube();
     void reset();
+    void reset(enum COLOR color);
     void print_faces();
     void turn(enum FACE face, enum DIR dir);
     void on_wipe(enum FACE face, enum EDGE edge, enum DIR dir);

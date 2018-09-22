@@ -251,6 +251,19 @@ Cube::~Cube() {
   }
 }
 
+void Cube::reset(enum COLOR color) {
+  for(int i=0; i< 6; i++) {
+    for( int j=0; j<9; j++) {
+      raw_data[i][j] = color;
+    }
+  }
+  //print_faces();
+  phase = 5; //finished
+  if(on_turned) {
+    on_turned(raw_data);
+  }
+}
+
 void Cube::reset() {
   for(int i=0; i< 6; i++) {
     for( int j=0; j<9; j++) {

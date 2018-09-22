@@ -11,16 +11,25 @@ Key key;
 
 #define MODE_DEMO 0
 #define MODE_PLAY 1
-#define MODE_CNT 2
+#define MODE_WHITE 2
+#define MODE_CNT 3
 
-int mode = MODE_DEMO;
+int mode = MODE_WHITE;
+
+void reset() {
+  if (mode == MODE_WHITE ) {
+    cube.reset(WHITE);
+  } else {
+    cube.reset();
+  }
+}
 
 void setup() {
   Serial.begin(9600);
   cube.set_on_turned_callback(on_turned);
   touch.set_on_wipe_callback(on_wipe);
   key.set_on_down_callback(change_mode);
-  cube.reset();
+  reset();
 }
 
 void on_turned(enum COLOR (&face_img)[6][9]){
@@ -51,8 +60,9 @@ void change_mode() {
   if( mode == MODE_DEMO ) {
     steps = 0; 
   }
-
-  cube.reset();
+  
+  reset();
+  
 }
 
 
