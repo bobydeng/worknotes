@@ -1,0 +1,226 @@
+solid Onshape
+  facet normal 0 0 1
+    outer loop
+      vertex 21 -21 145
+      vertex 21 21 145
+      vertex -21 -21 145
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 21 21 145
+      vertex -21 21 145
+      vertex -21 -21 145
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 21 -21 -5
+      vertex 21 -21 145
+      vertex -21 -21 -5
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 21 -21 145
+      vertex -21 -21 145
+      vertex -21 -21 -5
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex -21 -16 -1.11759e-7
+      vertex 21 -16 -1.11759e-7
+      vertex -21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 21 -16 -1.11759e-7
+      vertex 21 16 -1.11759e-7
+      vertex -21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 21 16 -1.11759e-7
+      vertex 21 16 140
+      vertex -21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 21 16 140
+      vertex -21 16 140
+      vertex -21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -21 16 140
+      vertex 21 16 140
+      vertex -21 -16 140
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 21 16 140
+      vertex 21 -16 140
+      vertex -21 -16 140
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 16 -1.11759e-7
+      vertex -21 21 -5
+      vertex -21 -16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 21 -5
+      vertex -21 -21 -5
+      vertex -21 -16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 -16 -1.11759e-7
+      vertex -21 -21 -5
+      vertex -21 -16 140
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 -21 -5
+      vertex -21 -21 145
+      vertex -21 -16 140
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 -16 140
+      vertex -21 -21 145
+      vertex -21 16 140
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 -21 145
+      vertex -21 21 145
+      vertex -21 16 140
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 16 140
+      vertex -21 21 145
+      vertex -21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -21 21 145
+      vertex -21 21 -5
+      vertex -21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -21 21 -5
+      vertex 21 21 -5
+      vertex -21 -21 -5
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 21 21 -5
+      vertex 21 -21 -5
+      vertex -21 -21 -5
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex -21 -16 140
+      vertex 21 -16 140
+      vertex -21 -16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex 21 -16 140
+      vertex 21 -16 -1.11759e-7
+      vertex -21 -16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex -21 21 145
+      vertex 21 21 145
+      vertex -21 21 -5
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex 21 21 145
+      vertex 21 21 -5
+      vertex -21 21 -5
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 16 140
+      vertex 21 21 145
+      vertex 21 -16 140
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 21 145
+      vertex 21 -21 145
+      vertex 21 -16 140
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 -16 140
+      vertex 21 -21 145
+      vertex 21 -16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 -21 145
+      vertex 21 -21 -5
+      vertex 21 -16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 -16 -1.11759e-7
+      vertex 21 -21 -5
+      vertex 21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 -21 -5
+      vertex 21 21 -5
+      vertex 21 16 -1.11759e-7
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 16 -1.11759e-7
+      vertex 21 21 -5
+      vertex 21 16 140
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21 21 -5
+      vertex 21 21 145
+      vertex 21 16 140
+    endloop
+  endfacet
+endsolid Onshape
