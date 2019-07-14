@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: myrobot_support
+    relative_path: urdf/myrobot.urdf
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/myrobot.srdf
+  CONFIG:
+    author_name: Bobby Deng
+    author_email: deng569@163.com
+    generated_timestamp: 1557588800

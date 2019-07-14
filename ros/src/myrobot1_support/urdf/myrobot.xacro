@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<robot name="myrobot" xmlns:xacro="http://wiki.ros.org/xacro">
+  <xacro:include filename="$(find myrobot1_support)/urdf/myrobot_macro.xacro"/>
+  <xacro:myrobot prefix=""/>
+  <link name="world"/>
+  <link name="table">
+    <visual>
+        <origin xyz="0 0 0.01" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.0 0.5 0.02"/>
+      </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0.01" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.0 1.0 0.02"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="camera_frame"/>
+
+  <joint name="world_to_table" type="fixed">
+    <parent link="world"/>
+    <child link="table"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="world_to_camera" type="fixed">
+    <parent link="world"/>
+    <child link="camera_frame"/>
+    <origin xyz="0.1 0 0.3" rpy="0 3.14159 0"/>
+  </joint>
+  <joint name="table_to_robot" type="fixed">
+    <parent link="table"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.02" rpy="0 0 0"/>
+  </joint>  
+</robot>

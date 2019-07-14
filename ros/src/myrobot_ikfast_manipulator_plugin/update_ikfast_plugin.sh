@@ -1,0 +1,1 @@
+rosrun moveit_kinematics create_ikfast_moveit_plugin.py myrobot manipulator myrobot_ikfast_manipulator_plugin /home/bobydeng/catkin_myws/src/myrobot_ikfast_manipulator_plugin/src/myrobot_manipulator_ikfast_solver.cpp

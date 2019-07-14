@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!--
+       Several nodes are started, to provide low-level robot communication
+       and higher-level actionlib support:
+         - myrobot_controller : accepts motion commands and publishes robot state
+         - joint_trajectory_action : actionlib interface to control robot motion
+
+    Usage:
+      myrobot_controller.launch
+  -->
+
+  <arg name="com_device_file" default="/dev/ttyACM0" /> 
+  <param name="com_device_file" value="$(arg com_device_file)"/>
+
+  <!-- myrobot_driver: accepts robot commands and reports status -->
+  <node pkg="myrobot_driver" type="myrobot_controller.py" name="myrobot_controller"/>
+  
+  <!-- joint_trajectory_action: provides actionlib interface for high-level robot control -->
+  <node pkg="industrial_robot_client" type="joint_trajectory_action" name="joint_trajectory_action"/>
+
+</launch>
+

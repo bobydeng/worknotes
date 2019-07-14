@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+<node output="screen" name="fake_ar_publisher" pkg="fake_ar_publisher" type="fake_ar_publisher_node"/>
+<node output="screen" name="vision_node" pkg="myworkcell_core" type="vision_node"/>
+<node name="myworkcell_node" pkg="myworkcell_core" type="myworkcell_node" output="screen">
+  <!--param name="base_frame" value="base_linkxx"/-->
+</node>
+</launch>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>myrobot_driver</name>
+  <version>0.0.1</version>
+  <description>
+   <p>
+     action server nodes for interfacing with myrobot controllers.
+   </p>
+  </description>
+  <author>Boby Deng</author>
+  <maintainer email="deng569@163.com">Boby Deng</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>actionlib</depend>
+  <depend>joint_state_controller</depend>
+  
+
+</package>

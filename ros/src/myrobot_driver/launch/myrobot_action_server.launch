@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="myrobot_driver" type="myrobot_action_server" name="myrobot_action_server" output="screen" >
+    <param name="publish_rate" value="10"/>
+  </node>
+</launch>
