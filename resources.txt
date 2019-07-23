@@ -1,0 +1,46 @@
+Dlib: facial landmark detection
+https://www.learnopencv.com/facial-landmark-detection/
+
+
+RPi GPIO Code Samples
+https://elinux.org/RPi_GPIO_Code_Samples
+
+DobotPi: Control Dobot on the Raspberry Pi 3
+https://github.com/danielnitz/DobotPi
+
+
+px4: opensource fly control
+https://github.com/PX4/Firmware
+
+grabCAD: opensource Machenical design
+https://grabcad.com/
+
+BCN3D Moveo Arm
+https://www.thingiverse.com/thing:1693444
+https://github.com/BCN3D/BCN3D-Moveo
+
+CoreXY-CNC-Plotter
+https://www.instructables.com/id/CoreXY-CNC-Plotter/
+
+Dog robot
+https://github.com/Nate711/StanfordDoggoProject
+
+delta robot: parallel robot
+https://www.tunmaker.tn/2018/06/19/delta-robot-project/
+
+tomography:
+scientfic computing for comupted tomography
+coputed axial lighography for rapid volumetric 3d additive manufacturing
+
+tomoPy: tomography for python
+https://tomopy.readthedocs.io/en/latest/
+https://github.com/tomopy/tomopy
+
+
+deep learning papers reading roadmap
+https://github.com/floodsung/Deep-Learning-Papers-Reading-Roadmap
+https://github.com/LuckyZXL2016/Deep-Learning-Papers-Reading-Roadmap
+
+
+
+

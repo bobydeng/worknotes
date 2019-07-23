@@ -75,7 +75,7 @@ DEG_PER_RAD = 180/3.1416
 #<Idle|MPos:0.000,0.000,0.000|FS:0,0>
 #<Idle|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>
 #<Run|MPos:0.000,0.000,0.000|FS:52,0>
-status_pattern = r'<(\S+)\|MPos:(\S+),(\S+),(\S+)\|FS:(\d+\.*\d*),(\d+\.*\d*).*'
+status_pattern = r'<(\S+)\|MPos:(\S+?),(\S+?),(\S+?)\|FS:(\d+\.*\d*),(\d+\.*\d*).*'
 gcode_format = 'G1 X{:-.3f} Y{:-.3f} Z{:-.3f} F{:-.3f}'
 
 
