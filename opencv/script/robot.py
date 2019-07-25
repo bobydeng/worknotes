@@ -16,6 +16,7 @@ BAUD_RATE = 115200
 REPORT_INTERVAL = 1.0 # seconds
 STATUS_IDLE = 0
 STATUS_RUN = 1
+STATUS_HOME = 2
 STATUS_OTHER = 100
 DEG_PER_RAD = 180/math.pi
 
@@ -31,7 +32,6 @@ gcode_xy_format = 'G0 X{:-.3f} Y{:-.3f}'
 gcode_z_format = 'G0 Z{:-.3f}'
 
 def _isVeryClose(a, b):
-    print 'diff', abs(a - b)
     return abs(a - b) < (10 ** -2)
 
 
@@ -49,13 +49,13 @@ class Robot:
         self.s = serial.Serial(self.com_device_file,BAUD_RATE)
         self.status = STATUS_OTHER
         self.sig_shutdown = False
-        comReceiverThread = threading.Thread(target=self._com_receiver)
-        comReceiverThread.daemon = True
-        comReceiverThread.start()
+        self.comReceiverThread = threading.Thread(target=self._com_receiver)
+        self.comReceiverThread.daemon = True
+        self.comReceiverThread.start()
         
-        timerThread = threading.Thread(target=self._status_timer)
-        timerThread.daemon = True
-        timerThread.start()
+        self.timerThread = threading.Thread(target=self._status_timer)
+        self.timerThread.daemon = True
+        self.timerThread.start()
         
         self._homing()
        
@@ -67,9 +67,12 @@ class Robot:
         self.init_j1 = 30
         self.init_z = 0#-30
        
-    def __destroy__(self):
+    def __del__(self):
+        print 'destruct robot'
         self.sig_shutdown = True
-        time.sleep(3)
+        #time.sleep(3)
+        self.comReceiverThread.join()
+        self.timerThread.join()
         self.s.close() 
       
     def _send_gcode(self, l_block):
@@ -90,23 +93,24 @@ class Robot:
     def _com_receiver(self):
       while not self.sig_shutdown:
           grbl_out = self.s.readline().strip() # Wait for grbl response
-          print"  MSG: \""+grbl_out+"\""
+          #print"  MSG: \""+grbl_out+"\""
           if grbl_out.startswith('<') :
-              self._extract_status(grbl_out)      
+              self._extract_status(grbl_out)    
+      print 'exits _com_receiver'
           
     def _extract_status(self, grbl_out):
         match = re.search(status_pattern, grbl_out)
-        print 'match', match.groups()
         if match is not None:
-            [strStatus, j0, j1, z, f0, f1] = match.groups()
+            [strStatus, j0, j1, z] = match.groups()
             self.j0 = float(j0)
             self.j1 = float(j1)
             self.z = float(z)
-            print 'joints', self.j0, self.j1, self.z
             if strStatus == 'Idle':
               self.status = STATUS_IDLE
             elif strStatus == 'Run':
               self.status = STATUS_RUN
+            elif strStatus == 'Home':
+              self.status = STATUS_HOME
             else: 
               #self.status = STATUS_OTHER
               raise Exception('Error, status: ' + strStatus)
@@ -115,6 +119,7 @@ class Robot:
         while not self.sig_shutdown:
           self.s.write('?')
           time.sleep(REPORT_INTERVAL)
+        print 'exits _status_timer'
               
     def _wait_reach(self, timeout):
         while timeout > 0:
@@ -190,9 +195,10 @@ class Robot:
 if __name__ == '__main__':
     robot = Robot('robotParam.yaml')
     robot.move_updown(-30)
-    cmd = raw_input("press enter to continue")
     robot.move_to(200, -30)
     cmd = raw_input("press enter to continue")
-    robot.move_to_joint(-90,30,-30)
+    robot.move_to(200, 30)
+    cmd = raw_input("press enter to continue")
+    robot.move_to_joint(-60,30,-30)
     robot = None
     

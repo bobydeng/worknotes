@@ -22,7 +22,7 @@ class PartDetector:
         if len(contours) == 0:
             return None, None
         
-        contour, center = self._Filter_n_find_center(contours, ratio)
+        contour, center = self._Filter_n_find_center(contours, resized.shape, ratio)
         
         if contour is None:
             return  None, None
@@ -30,7 +30,10 @@ class PartDetector:
         shape = self.sd.detect(contour)    
         
         if markInFrame:
-            self._mark_object(frame, contour, center, shape, ratio)
+            c = contour.astype("float")
+            c *= ratio
+            c = c.astype("int")
+            self._mark_object(frame, c, center, shape)
 
         return shape, center
 
@@ -88,7 +91,7 @@ class PartDetector:
         return cnts
         
 
-    def _Filter_n_find_center(self, cnts, ratio=1):
+    def _Filter_n_find_center(self, cnts, shape, ratio=1):
         for c in cnts:
             M = cv2.moments(c)
             if M["m00"] == 0:
@@ -97,7 +100,9 @@ class PartDetector:
             cY = int((M["m01"] / M["m00"]) * ratio)
             
             area = M['m00']
-            if area < 1000:
+            frameArea = shape[0] * shape[1]
+            areaRatio = area/frameArea
+            if areaRatio < 0.01 or areaRatio > 0.1 :
                 continue
             
             return c, [cX, cY]            
@@ -107,14 +112,11 @@ class PartDetector:
     def _mark_object(self, frame, contour, center, shape, ratio=1):
         cv2.circle(frame, tuple(center), 5, (0,255,0))
        
-        c = contour.astype("float")
-        c *= ratio
-        c = c.astype("int")
-        cv2.drawContours(frame, [c], -1, (0, 255 ,0), 2)
+        cv2.drawContours(frame, [contour], -1, (0, 255 ,0), 2)
         cv2.putText(frame, shape, tuple(center), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, (255,255,255), 2)
                     
-        cv2.imshow("Image", frame)
+        #cv2.imshow("Image", frame)
     
 
 if __name__ == '__main__':
@@ -123,7 +125,7 @@ if __name__ == '__main__':
     fname = testFileFolder + 'board104.jpg'
     frame = cv2.imread(fname)
     dt = PartDetector()
-    mark = False
+    mark = True
     shape, center = dt.detect(frame, mark)
     print shape, center
     if mark:

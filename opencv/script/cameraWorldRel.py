@@ -37,6 +37,7 @@ import numpy as np
 from numpy.linalg import inv
 import cv2
 from camera import Camera
+import chessboard as cb
 
 class CameraWorldRel:
     def __init__(self, camera_mtx, pnpParamFile):
@@ -72,26 +73,20 @@ class CameraWorldRel:
         return wcPoint
     
     def calcPnPParams(self, chessboardimg, camera_matrix, dist_coeffs, pnpParamFile):
-        #grid_width = 8.95
-        #grid_height = 10.7
-        grid_width = 13.2  #118.5/9
-        grid_height = 15.8  #110.5/7
-        
-        objp = np.zeros((6*9,3), np.float32)
-        objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)
-        objp[:,0] *= grid_width
-        objp[:,1] *= grid_height
+        objp = cb.grid_corner_pos()
         
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         
         gray = cv2.cvtColor(chessboardimg, cv2.COLOR_BGR2GRAY)
-        ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
+        ret, corners = cv2.findChessboardCorners(gray, cb.grid_size, None)
         
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         
         img = chessboardimg.copy()
         # Draw and display the corners
-        img = cv2.drawChessboardCorners(img, (9,6), corners2,ret)
+        img = cv2.drawChessboardCorners(img, cb.grid_size, corners2,ret)
+        #cv2.circle(img, tuple(corners2[0][0]), 20, (100,255,100))
+        
         cv2.imshow('img',img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -103,28 +98,26 @@ class CameraWorldRel:
         rotMat, _ = cv2.Rodrigues(rvec)
         self.iRot = inv(rotMat)
         
-        print rvec
-        print self.tvec
         if pnpParamFile is not None:
             np.savez(pnpParamFile, rvec=rvec, tvec=self.tvec)
 
 
 if __name__ == '__main__':
-    """    
+    """
     testFileFolder = "/home/bobydeng/myworks/opencv/camera/pattern_captured_hr/bigboard/"
     fname = testFileFolder + 'board100.jpg'
     img = cv2.imread(fname)
     """
-    
     paramFile='cameraParam.npz'
     camera = Camera('setting.yaml', paramFile)
+    #"""    
     print 'capture chessboard pattern, enter "r" to accept the frame'
     while True:
         img = camera.capture()
         cv2.imshow('img', img)
         if cv2.waitKey(1) & 0xFF == ord('r'):
             break
-    
+    #""" 
     camera_matrix, dist_coeffs = camera.getParams()
     
     pnpParamFile = 'pnpParams.npz'
@@ -133,8 +126,8 @@ if __name__ == '__main__':
     
     """
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    gray = cv2.cvtColor(chessboardimg, cv2.COLOR_BGR2GRAY)
-    ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, corners = cv2.findChessboardCorners(gray, cb.grid_size, None)
         
     corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
     for i in xrange(len(corners2)):

@@ -7,7 +7,7 @@ Created on Sat Jul 13 21:26:51 2019
 import cv2
 import numpy as np
 import glob
-
+import chessboard as cb
 
 # Load previously saved data
 with np.load('cameraParam.npz') as X:
@@ -20,21 +20,13 @@ def draw(img, corners, imgpts):
     img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
     return img
 
-#grid_width = 8.95
-#grid_height = 10.7
-
-grid_width = 13.2  #118.5/9
-grid_height = 15.8  #110.5/7
     
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-objp = np.zeros((6*9,3), np.float32)
-objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)
-objp[:,0] *= grid_width
-objp[:,1] *= grid_height
+objp = cb.grid_corner_pos
 
 axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]])#.reshape(-1,3)
-axis[:,0] *= grid_width
-axis[:,1:] *= grid_height
+axis[:,0] *= cb.grid_width
+axis[:,1:] *= cb.grid_height
 
 def drawCube(img, corners, imgpts):
     imgpts = np.int32(imgpts).reshape(-1,2)
@@ -53,8 +45,8 @@ def drawCube(img, corners, imgpts):
 
 cube_axis = np.float32([[0,0,0], [0,3,0], [3,3,0], [3,0,0],
                    [0,0,-3],[0,3,-3],[3,3,-3],[3,0,-3] ])
-cube_axis[:,0] *= grid_width
-cube_axis[:,1:] *= grid_height
+cube_axis[:,0] *= cb.grid_width
+cube_axis[:,1:] *= cb.grid_height
 
 isCube=True
 

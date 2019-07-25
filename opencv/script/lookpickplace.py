@@ -24,7 +24,7 @@ class LPP:
         self.down_z = -40
         self.robot.move_updown(self.up_z)
 
-    def __destroy__(self):
+    def __del__(self):
         self.camera = None
         self.robot = None
 
@@ -39,16 +39,21 @@ class LPP:
 
     def run(self):
         #print 'lpp run', threading.currentThread().ident               
+        """        
         testFileFolder = "/home/bobydeng/myworks/opencv/camera/pattern_captured_hr/bigboard/"
         fname = testFileFolder + 'board104.jpg'
-        img1 = cv2.imread(fname)
+        img1 = cv2.imread(fname) """
         while True:
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-            #img = self.camera.capture()
-            img = img1.copy()
+            img = self.camera.capture()
+            if img is None:
+                break            
+            
+            #img = img1.copy()
             shape, center = self.partDetector.detect(img, True)
             cv2.imshow('img',img)
+            if cv2.waitKey(0) & 0xFF == ord('q'):
+                break            
+            
             if shape is None:
                 continue
             

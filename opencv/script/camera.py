@@ -8,6 +8,10 @@ import numpy as np
 import cv2
 import glob
 import v4l2
+import chessboard as cb
+import time
+import Queue
+import threading
 #import yaml
 
 """
@@ -57,17 +61,22 @@ class Camera:
         self.cap = cv2.VideoCapture(self.cameraId)
         self._configCamera()
         
+        self.q = Queue.Queue()
+        t = threading.Thread(target=self._reader)
+        t.daemon = True
+        t.start()        
+        
         if paramFile is not None:
             self._loadCameraParam(paramFile)
     
     def _loadSettings(self, cameraSettingFile):
-        self.cameraId = 1
+        self.cameraId = 2
         self.brightness = 0
         self.gamma = 250
         self.exposureAuto = 3
         self.exposureAutoPriority = 1
-        self.frameWidth = 1280
-        self.frameHeight = 1024
+        self.frameWidth = 640#1280
+        self.frameHeight = 480#1024
         
     def _loadCameraParam(self, paramFile):
         # Load previously saved data
@@ -80,14 +89,27 @@ class Camera:
         with np.load(paramFile) as X:
             self.mtx, self.dist, _, _ = [X[i] for i in ('mtx','dist','rvecs','tvecs')]
        
+    # read frames as soon as they are available, keeping only most recent one
+    def _reader(self):
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+            if not self.q.empty():
+                try:
+                    self.q.get_nowait()   # discard previous (unprocessed) frame
+                except Queue.Empty:
+                    pass
+            self.q.put(frame)
+       
     def capture(self):
-        """testFileFolder = "/home/bobydeng/myworks/opencv/camera/pattern_captured_hr/bigboard/"
-        fname = testFileFolder + 'board104.jpg'
-        frame = cv2.imread(fname)
-        return frame
-        """
+        """        
         ret, frame = self.cap.read()
-        return frame
+        if ret == True:
+            return frame
+        return None
+        """
+        return self.q.get()
         
     def getParams(self):
         return self.mtx, self.dist
@@ -134,7 +156,7 @@ class Camera:
         cap.close()
         cap = None
 
-    def __destroy__(self):
+    def __del__(self):
         self.cap.release()
         
     def _capture_pattern(self, patternFileFolder):
@@ -182,20 +204,11 @@ class Camera:
         cv2.destroyAllWindows()
 
     def _calibrate(self, patternFileFolder, paramFile):
-        #grid_width = 8.95
-        #grid_height = 10.7
-        
-        grid_width = 13.2  #118.5/9
-        grid_height = 15.8  #110.5/7
-        
         # termination criteria
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         
         # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-        objp = np.zeros((6*9,3), np.float32)
-        objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)
-        objp[:,0] *= grid_width
-        objp[:,1] *= grid_height
+        objp = cb.grid_corner_pos
         
         # Arrays to store object points and image points from all the images.
         objpoints = [] # 3d point in real world space
@@ -208,7 +221,7 @@ class Camera:
             gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         
             # Find the chess board corners
-            ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
+            ret, corners = cv2.findChessboardCorners(gray, cb.grid_size, None)
         
             # If found, add object points, image points (after refining them)
             if ret == True:
@@ -218,7 +231,7 @@ class Camera:
                 imgpoints.append(corners2)
         
                 # Draw and display the corners
-                img = cv2.drawChessboardCorners(img, (9,6), corners2,ret)
+                img = cv2.drawChessboardCorners(img, cb.grid_size, corners2, ret)
                 cv2.imshow('img',img)
                 cv2.waitKey(500)
         
