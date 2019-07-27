@@ -36,7 +36,7 @@ def _isVeryClose(a, b):
 
 
 class Robot:
-    def  __init__(self, robotParamFile):
+    def  __init__(self, robotParamFile, homing=True):
         #print 'robot init thread', threading.currentThread().ident
         self.j0 = UNKNOW_VALUE
         self.j1 = UNKNOW_VALUE
@@ -57,7 +57,8 @@ class Robot:
         self.timerThread.daemon = True
         self.timerThread.start()
         
-        self._homing()
+        if homing:
+            self._homing()
        
     def _loadParams(self, robotParamFile):
         self.com_device_file = '/dev/ttyUSB0'
@@ -135,9 +136,12 @@ class Robot:
     def _ik(self, x, y):
         r = math.sqrt(x*x + y*y)
         theta = math.atan2(y,x)
+        print theta*DEG_PER_RAD
     
         alpha = math.acos( (r*r + self.sqrlink1 - self.sqrlink2)/(2*r* self.link1len))
+        print alpha*DEG_PER_RAD
         beta = theta - alpha
+        print beta*DEG_PER_RAD
         sigma = math.acos((self.sqrlink1 + self.sqrlink2 -r*r)/(2 * self.link1len * self.link2len))
         gama = math.pi - sigma
         return [beta*DEG_PER_RAD, gama*DEG_PER_RAD]
@@ -176,15 +180,15 @@ class Robot:
         self.valve_off()
         
     def bump_on(self):
-        #self._send_gcode('M8')
-        self._holdon(1)
+        self._send_gcode('M8')
+        #self._holdon(1)
         
     def bump_off(self):
         self._send_gcode('M9')
         
     def valve_on(self):
-        #self._send_gcode('M7')
-        self._holdon(1)
+        self._send_gcode('M7')
+        #self._holdon(1)
         
     def valve_off(self):
         self._send_gcode('M9')
@@ -193,12 +197,17 @@ class Robot:
         self._send_gcode('G4 P' + str(t)) 
         
 if __name__ == '__main__':
-    robot = Robot('robotParam.yaml')
+    """robot = Robot('robotParam.yaml')
     robot.move_updown(-30)
     robot.move_to(200, -30)
     cmd = raw_input("press enter to continue")
     robot.move_to(200, 30)
     cmd = raw_input("press enter to continue")
     robot.move_to_joint(-60,30,-30)
+    robot = None
+    """
+    robot = Robot('robotParam.yaml',False)
+    robot._ik(181, -104)
+    robot._ik(104, -181)
     robot = None
     

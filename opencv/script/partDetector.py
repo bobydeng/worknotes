@@ -28,6 +28,8 @@ class PartDetector:
             return  None, None
         
         shape = self.sd.detect(contour)    
+        if shape is None:
+            return  None, None
         
         if markInFrame:
             c = contour.astype("float")

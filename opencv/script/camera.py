@@ -157,6 +157,7 @@ class Camera:
         cap = None
 
     def __del__(self):
+        print 'destruct camera'
         self.cap.release()
         
     def _capture_pattern(self, patternFileFolder):
