@@ -11,7 +11,7 @@ import numpy as np
 
 name = 'taya'
 name = 'hacked'
-#name = 'circles'
+name = 'circles'
 fname = '/home/bobydeng/myworks/worknotes/worknotes/Arduino/led_pov/led_pov_' + name + '.png'
 img = cv2.imread(fname)
 #cv2.imshow('img',img)
@@ -26,17 +26,18 @@ width = img.shape[0]
 offset = width/2
 print img.shape
 
+'''
 len_total = 57.0
 len0 = 19
 stepLen = 4
 led_cnt = 10
 
 '''
-len_total = 50.0
-len0 = 19
-stepLen = 2
+len_total = 56.0 #55.0
+len0 = 16.5
+stepLen = 2.567
 led_cnt = 16
-'''
+
 
 '''
 len_total = 58.0
@@ -111,7 +112,7 @@ for i in range(div*div_rcv):
             y = r * math.sin(theta)
             col = int(round(offset + x))
             row = int(round(offset - y))
-            cv2.circle(img_rcv2, (col,row), stepLen/2, (255))
+            cv2.circle(img_rcv2, (col,row), int(round(stepLen/2)), (255))
 
 cv2.imshow('img_rcv2',img_rcv2)
 

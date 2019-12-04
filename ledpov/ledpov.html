@@ -1,0 +1,128 @@
+<html>
+	<body>
+	<!-- img id="snow" width="200" height="200" src="snow.png" alt="Snow"/ -->
+	<canvas id="screen" width="200" height="200" style="border:1px solid #000000;">	
+	
+	<script>
+	var g = 0.4;
+	class Point {
+		constructor(x,y) {
+			this.x = x;
+			this.y = y;
+		}
+		toString() {
+			return '(' + this.x + ',' + this.y + ')';
+		}
+	}
+	class Star {
+		constructor(startTime, targetPos, startY, xSpeed) {
+			this.startTime = startTime;
+			this.targetPos = targetPos;
+			this.xSpeed = xSpeed;
+			this.fallTime = Math.sqrt(2* (targetPos.y - startY) /g);
+			var startX = targetPos.x + xSpeed * this.fallTime;
+			this.startPos = new Point(startX, startY);
+		}
+		getPos(time) {
+			if ( time <= this.startTime ) {
+				return this.startPos;
+			}
+			var delT = time - this.startTime;
+			if(delT >= this.fallTime) {
+				return this.targetPos;
+			}
+			var x = this.startPos.x - delT * this.xSpeed;
+			var y = this.startPos.y + 0.5*g*delT*delT;
+			return new Point(x,y);
+		}
+	}
+	
+	function draw(ctx, pos, color) {
+		ctx.beginPath();
+		ctx.strokeStyle = color;
+		ctx.arc(Math.round(pos.x), Math.round(pos.y), 1, 0, 2*Math.PI);
+ 		ctx.fillStyle = color;
+    ctx.fill()		
+		//ctx.stroke();
+	}
+ 
+	function randn_bm() {
+	    var u = 0, v = 0;
+	    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+	    while(v === 0) v = Math.random();
+	    let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+	    num = num / 10.0 + 0.5; // Translate to 0 -> 1
+	    if (num > 1 || num < 0) return randn_bm(); // resample between 0 and 1
+	    return num;
+	}
+ 
+	var endTime = 1000;
+ 
+	var points = [new Point(), new Point(), new Point(), new Point(), new Point(), new Point(), new Point(), new Point()]
+ 
+	var stars =[
+		new Star(10, new Point(60, 60), -20, 5),
+		new Star(20, new Point(30, 100), -30, 7),
+		new Star(40, new Point(130, 120), -10, 4),
+		new Star(16, new Point(90, 160), -25, 3),
+		new Star(30, new Point(110, 80), -25, 6)] ;
+ 
+	var stars = [];
+	
+	/*for(i=0; i<points.length; i++) {
+		stars[i] = new Star(Math.random()*200, points[i]/*new Point(Math.random()*200, Math.random()*20 + 180)* /, Math.random()*-20 -50, Math.random()*5 + 3)
+	}*/
+		
+	var canvas = document.getElementById("screen")
+	var ctx = canvas.getContext("2d");
+ 
+	function update(i) {
+		setTimeout(function() {
+				ctx.fillStyle = 'black';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);	
+				
+				for(k=0; k< stars.length; k++) {
+					pos = stars[k].getPos(i);
+					draw(ctx, pos, 'white');
+				}
+				ctx.stroke();
+				if(i< endTime) {
+					update(i+1);
+				}
+			}, 50);
+	}
+ 
+	window.onload = function() {
+		/*var img = document.getElementById("snow");
+		var image = new Image;
+		image.crossOrigin = "Anonymous";
+		image.src= img.src
+		image.setAttribute('crossOrigin', '');
+	  ctx.drawImage(img, 0, 0);*/
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = 'black';		
+	  ctx.font = "57px Arial Black";
+		ctx.fillText("SNOW", 5, 190);
+		ctx.lineWidth = 5;
+		ctx.moveTo(5, 193);
+		ctx.lineTo(200 - 5, 193);
+		ctx.stroke();
+		ctx.lineWidth = 1;
+	  var pixs = ctx.getImageData(0,0, canvas.width, canvas.height)
+	  for (i=0; i< canvas.width; i++) {
+	  	for(j=0; j< canvas.height; j++) {
+	  		idx = i*canvas.width + j;
+	  		if(pixs.data[idx*4] == 0) {
+	  			var point = new Point(j,i);
+	  			stars[stars.length] = new Star(Math.random()*400, point, Math.random()*-20 -50, Math.random()*5 + 3);
+	  		}
+	  	}
+	  }
+		update(1);
+	}
+ 
+	</script>
+	</body>
+	
+</html>
