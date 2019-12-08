@@ -2,8 +2,66 @@
 	<body>
 	<!-- img id="snow" width="200" height="200" src="snow.png" alt="Snow"/ -->
 	<canvas id="screen" width="200" height="200" style="border:1px solid #000000;">	
-	
+	<!-- object data="file:///home/bobydeng/myworks/worknotes/worknotes/ledpov/heart1.svg" type="image/svg+xml"
+		id="heartsvg" width="100%" height="100%"  style="border:1px solid #000000;"></object -->
+
 	<script>
+	/*
+	var svg = document.getElementById("heartsvg");
+
+	// It's important to add an load event listener to the object,
+	// as it will load the svg doc asynchronously
+	svg.addEventListener("load",function() {
+		//onSvgLoad();
+	}, true);
+
+
+	function onSvgLoad() {
+		// get the inner DOM of heart1.svg
+		var svgDoc = svg.contentDocument;
+		var width = svgDoc.getAttribute('width');
+		var paths = svgDoc.getElementsByTagName("path");
+		for(var i=0; i<path.length; i++) {
+			parsePath(path);
+		}
+	}
+	
+	function parsePath(path) {
+		var seglist = path.pathSegList,
+			length = seglist.numberOfItems, i = 0, seg,
+			out = [], data, type;
+
+
+		for (; i < length; i++) {
+				seg = seglist.getItem(i);
+				type = seg.pathSegTypeAsLetter;
+				data = { type: seg.pathSegTypeAsLetter };
+
+				switch (type) {
+				    case 'M':
+				    case 'm':
+				    case 'l' :
+				    case 'L' :
+				        data.x = seg.x;
+				        data.y = seg.y;
+				    break;
+
+				    case 'C':
+				    case 'c':
+				        data.x = seg.x;
+				        data.y = seg.x;
+				        data.x1 = seg.x1;
+				        data.y1 = seg.y1;
+				        data.x2 = seg.x2;
+				        data.y2 = seg.y2;
+				    break;
+				}
+				out.push(data);
+		}
+
+		return JSON.stringify(out);
+	}*/
+	
 	var g = 0.4;
 	class Point {
 		constructor(x,y) {
@@ -15,37 +73,80 @@
 		}
 	}
 	class Star {
-		constructor(startTime, targetPos, startY, xSpeed) {
+		constructor(startTime, targetPos, startY, xSpeed, onHome, onDisappear) {
 			this.startTime = startTime;
 			this.targetPos = targetPos;
 			this.xSpeed = xSpeed;
 			this.fallTime = Math.sqrt(2* (targetPos.y - startY) /g);
 			var startX = targetPos.x + xSpeed * this.fallTime;
 			this.startPos = new Point(startX, startY);
+
+			var xFromO = targetPos.x - 100;
+			var yFromO = targetPos.y - 100;
+			this.r = Math.sqrt(xFromO*xFromO + yFromO*yFromO);
+			this.angle = Math.atan2(yFromO, xFromO);
+			this.explodeSpeed = Math.random()*5 + 3;
+			this.homed = false;
+			this.disappeared = false;
+
 		}
-		getPos(time) {
+		fall(time) {
+			if(this.homed) {
+				return this.targetPos;
+			}
 			if ( time <= this.startTime ) {
 				return this.startPos;
 			}
 			var delT = time - this.startTime;
 			if(delT >= this.fallTime) {
+				this.homed = true;
+				if(onHome) {
+					onHome(this);
+				}
 				return this.targetPos;
 			}
 			var x = this.startPos.x - delT * this.xSpeed;
 			var y = this.startPos.y + 0.5*g*delT*delT;
 			return new Point(x,y);
 		}
+
+		explode(time) {
+			if(this.disappeared) {
+				return new Point(-10,-10);
+			}
+			var r = this.r + time*this.explodeSpeed;
+			var x = r*Math.cos(this.angle) + 100;
+			var y = r*Math.sin(this.angle) + 100;
+			if((x<0 || x>200 || y<0 || y > 200)){
+				this.disappeared = true;
+				if(onDisappear) {
+					onDisappear(this);
+				}
+			};
+			return new Point(x, y);
+		}
 	}
 	
 	function draw(ctx, pos, color) {
 		ctx.beginPath();
 		ctx.strokeStyle = color;
-		ctx.arc(Math.round(pos.x), Math.round(pos.y), 1, 0, 2*Math.PI);
+		ctx.arc(Math.round(pos.x), Math.round(pos.y), 3, 0, 2*Math.PI);
  		ctx.fillStyle = color;
-    ctx.fill()		
+    		ctx.fill()		
 		//ctx.stroke();
 	}
  
+	var homedCtn = 0;
+	var disappearedCtn = 0;
+	
+	function onHome(star) {
+		homedCtn++;
+	}	 
+	
+	function onDisappear(star) {
+		disappearedCtn++;
+	}
+
 	function randn_bm() {
 	    var u = 0, v = 0;
 	    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
@@ -56,9 +157,187 @@
 	    return num;
 	}
  
-	var endTime = 1000;
+	var endTime = 400;
  
-	var points = [new Point(), new Point(), new Point(), new Point(), new Point(), new Point(), new Point(), new Point()]
+	var points = [
+		//new Point(60, 60), new Point(30, 100), new Point(130, 120), new Point(90, 160), new Point(110, 80)
+/*new Point(100.00, 163.74),
+new Point(93.40, 161.62),
+new Point(87.20, 158.50),
+new Point(81.29, 154.84),
+new Point(75.67, 150.76),
+new Point(70.34, 146.29),
+new Point(65.35, 141.46),
+new Point(60.71, 136.29),
+new Point(56.46, 130.79),
+new Point(52.64, 124.99),
+new Point(49.27, 118.91),
+new Point(46.39, 112.58),
+new Point(44.02, 106.05),
+new Point(42.21, 99.34),
+new Point(41.00, 92.50),
+new Point(40.44, 85.57),
+new Point(40.56, 78.63),
+new Point(41.45, 71.74),
+new Point(43.24, 65.03),
+new Point(46.07, 58.69),
+new Point(50.05, 53.01),
+new Point(55.06, 48.21),
+new Point(60.90, 44.46),
+new Point(67.38, 41.97),
+new Point(74.24, 41.00),
+new Point(81.12, 41.84),
+new Point(87.48, 44.58),
+new Point(92.83, 48.99),
+new Point(96.97, 54.55),
+new Point(100.00, 60.80),
+new Point(103.03, 54.55),
+new Point(107.17, 48.99),
+new Point(112.52, 44.58),
+new Point(118.88, 41.84),
+new Point(125.76, 41.00),
+new Point(132.62, 41.97),
+new Point(139.10, 44.46),
+new Point(144.94, 48.21),
+new Point(149.95, 53.01),
+new Point(153.93, 58.69),
+new Point(156.76, 65.03),
+new Point(158.55, 71.74),
+new Point(159.44, 78.63),
+new Point(159.56, 85.57),
+new Point(159.00, 92.50),
+new Point(157.79, 99.34),
+new Point(155.98, 106.05),
+new Point(153.61, 112.58),
+new Point(150.73, 118.91),
+new Point(147.36, 124.99),
+new Point(143.54, 130.79),
+new Point(139.29, 136.29),
+new Point(134.65, 141.46),
+new Point(129.66, 146.29),
+new Point(124.33, 150.76),
+new Point(118.71, 154.84),
+new Point(112.80, 158.50),
+new Point(106.60, 161.62),*/
+
+new Point(100.00, 157.36),
+new Point(94.06, 155.46),
+new Point(88.48, 152.65),
+new Point(83.16, 149.36),
+new Point(78.10, 145.68),
+new Point(73.31, 141.66),
+new Point(68.81, 137.31),
+new Point(64.64, 132.66),
+new Point(60.81, 127.71),
+new Point(57.37, 122.49),
+new Point(54.34, 117.02),
+new Point(51.75, 111.32),
+new Point(49.62, 105.44),
+new Point(47.99, 99.41),
+new Point(46.90, 93.25),
+new Point(46.40, 87.02),
+new Point(46.50, 80.77),
+new Point(47.30, 74.56),
+new Point(48.91, 68.52),
+new Point(51.46, 62.82),
+new Point(55.04, 57.71),
+new Point(59.55, 53.39),
+new Point(64.81, 50.01),
+new Point(70.64, 47.77),
+new Point(76.82, 46.90),
+new Point(83.01, 47.65),
+new Point(88.73, 50.12),
+new Point(93.54, 54.09),
+new Point(97.28, 59.10),
+new Point(100.00, 64.72),
+new Point(102.72, 59.10),
+new Point(106.46, 54.09),
+new Point(111.27, 50.12),
+new Point(116.99, 47.65),
+new Point(123.18, 46.90),
+new Point(129.36, 47.77),
+new Point(135.19, 50.01),
+new Point(140.45, 53.39),
+new Point(144.96, 57.71),
+new Point(148.54, 62.82),
+new Point(151.09, 68.52),
+new Point(152.69, 74.56),
+new Point(153.50, 80.77),
+new Point(153.60, 87.02),
+new Point(153.10, 93.25),
+new Point(152.01, 99.41),
+new Point(150.38, 105.44),
+new Point(148.25, 111.32),
+new Point(145.66, 117.02),
+new Point(142.63, 122.49),
+new Point(139.19, 127.71),
+new Point(135.36, 132.66),
+new Point(131.19, 137.31),
+new Point(126.69, 141.66),
+new Point(121.90, 145.68),
+new Point(116.84, 149.36),
+new Point(111.52, 152.65),
+new Point(105.94, 155.46),
+
+new Point(100.00, 170.11),
+new Point(92.74, 167.79),
+new Point(85.92, 164.35),
+new Point(79.42, 160.32),
+new Point(73.23, 155.83),
+new Point(67.38, 150.92),
+new Point(61.88, 145.61),
+new Point(56.78, 139.92),
+new Point(52.11, 133.87),
+new Point(47.90, 127.49),
+new Point(44.20, 120.80),
+new Point(41.03, 113.84),
+new Point(38.43, 106.65),
+new Point(36.43, 99.27),
+new Point(35.10, 91.75),
+new Point(34.48, 84.13),
+new Point(34.62, 76.49),
+new Point(35.59, 68.91),
+new Point(37.56, 61.53),
+new Point(40.68, 54.56),
+new Point(45.05, 48.31),
+new Point(50.57, 43.03),
+new Point(56.99, 38.90),
+new Point(64.11, 36.16),
+new Point(71.66, 35.10),
+new Point(79.23, 36.02),
+new Point(86.23, 39.04),
+new Point(92.11, 43.89),
+new Point(96.67, 50.01),
+new Point(100.00, 56.88),
+new Point(103.33, 50.01),
+new Point(107.89, 43.89),
+new Point(113.77, 39.04),
+new Point(120.77, 36.02),
+new Point(128.34, 35.10),
+new Point(135.89, 36.16),
+new Point(143.01, 38.90),
+new Point(149.43, 43.03),
+new Point(154.95, 48.31),
+new Point(159.32, 54.56),
+new Point(162.44, 61.53),
+new Point(164.41, 68.91),
+new Point(165.38, 76.49),
+new Point(165.52, 84.13),
+new Point(164.90, 91.75),
+new Point(163.57, 99.27),
+new Point(161.57, 106.65),
+new Point(158.97, 113.84),
+new Point(155.80, 120.80),
+new Point(152.10, 127.49),
+new Point(147.89, 133.87),
+new Point(143.22, 139.92),
+new Point(138.12, 145.61),
+new Point(132.62, 150.92),
+new Point(126.77, 155.83),
+new Point(120.58, 160.32),
+new Point(114.08, 164.35),
+new Point(107.26, 167.79)
+		];
  
 	var stars =[
 		new Star(10, new Point(60, 60), -20, 5),
@@ -69,30 +348,55 @@
  
 	var stars = [];
 	
-	/*for(i=0; i<points.length; i++) {
-		stars[i] = new Star(Math.random()*200, points[i]/*new Point(Math.random()*200, Math.random()*20 + 180)* /, Math.random()*-20 -50, Math.random()*5 + 3)
-	}*/
+	for(i=0; i<points.length; i++) {
+		stars[i] = new Star(Math.random()*200, points[i], 
+					Math.random()*(-20) -50, Math.random()*5 + 3,
+					onHome, onDisappear);
+	}
 		
 	var canvas = document.getElementById("screen")
 	var ctx = canvas.getContext("2d");
  
-	function update(i) {
+ 	rend = draw;
+ 	//rend = povDraw;
+ 	homed = false;
+ 	disappeared = false;
+	function update(i, isExplode) {
 		setTimeout(function() {
 				ctx.fillStyle = 'black';
 				ctx.fillRect(0, 0, canvas.width, canvas.height);	
 				
 				for(k=0; k< stars.length; k++) {
-					pos = stars[k].getPos(i);
-					draw(ctx, pos, 'white');
+					if(isExplode) {
+						pos = stars[k].explode(i);
+					} else {
+						pos = stars[k].fall(i);
+					}
+					//draw(ctx, pos, 'white');
+					rend(ctx, pos, 'white');
 				}
 				ctx.stroke();
-				if(i< endTime) {
-					update(i+1);
+				if(isExplode ) {
+					if(!disappeared) {
+						update(i+1, true);
+						if(disappearedCtn >= stars.length) {
+							disappeared = true;
+						}
+					}
+				} else if(!homed) {
+					update(i+1, false);
+					if(homedCtn >= stars.length) {
+						homed = true;
+					}
+
+				}else {
+					setTimeout(function() {	update(1, true);}, 1000);
 				}
 			}, 50);
 	}
  
-	window.onload = function() {
+	//window.onload = function() {
+	function run() {
 		/*var img = document.getElementById("snow");
 		var image = new Image;
 		image.crossOrigin = "Anonymous";
@@ -102,11 +406,14 @@
 		ctx.fillStyle = 'white';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = 'black';		
-	  ctx.font = "57px Arial Black";
-		ctx.fillText("SNOW", 5, 190);
+	  	ctx.font = "57px Arial Black";
+		/*ctx.fillText("SNOW", 5, 190);
 		ctx.lineWidth = 5;
 		ctx.moveTo(5, 193);
 		ctx.lineTo(200 - 5, 193);
+		*/
+		ctx.font = "80px Arial Black";
+		ctx.fillText("O", 75, 125);
 		ctx.stroke();
 		ctx.lineWidth = 1;
 	  var pixs = ctx.getImageData(0,0, canvas.width, canvas.height)
@@ -115,13 +422,86 @@
 	  		idx = i*canvas.width + j;
 	  		if(pixs.data[idx*4] == 0) {
 	  			var point = new Point(j,i);
-	  			stars[stars.length] = new Star(Math.random()*400, point, Math.random()*-20 -50, Math.random()*5 + 3);
+	  			stars[stars.length] = new Star(Math.random()*200, point, 
+					Math.random()*(-20) -50, Math.random()*5 + 3,
+					onHome, onDisappear);
 	  		}
 	  	}
 	  }
+	  
+	  
+	  
 		update(1);
 	}
  
+ 	update(1);
+ 
+ 	leds = 16;
+ 	dotR = 3.0;
+ 	dotR_square = dotR*dotR;
+ 	r0 = 30;
+ 	rUnit = 4.0;
+ 	aUnit = 1.0;
+ 	AU_IN_RAD = aUnit*Math.PI/180;
+ 	
+ 	class PolarPoint {
+		constructor(r,a) {
+			this.r = r;
+			this.a = a;
+		}
+		
+		toString() {
+			return '(' + this.r + ',' + this.a + ')';
+		}
+ 	} 
+ 	
+ 	function dot2PolarPixels(pt) {
+ 		var x = pt.x - 100;
+ 		var y = pt.y - 100;
+ 		var r = Math.sqrt(x*x + y*y);
+ 		var rm = Math.ceil((r - r0 - dotR)/rUnit);
+ 		var rM = (r - r0 + dotR)/rUnit;
+ 		var a = Math.atan2(y, x);
+ 		var aExtent = Math.asin(dotR/r);
+ 		var am = Math.ceil((a - aExtent)/AU_IN_RAD);
+ 		var aM = (a + aExtent)/AU_IN_RAD;
+ 		var pixels = [];
+ 		
+ 		for(var i=rm; i<=rM; i++) {
+ 			if(i<0 || i>leds) {
+ 				continue;
+ 			}
+ 			var r1=i*rUnit + r0;
+ 			for(var j=am; j<=aM; j++) {
+ 				var dis_square = r*r + r1*r1 - 2*r*r1*Math.cos(j*AU_IN_RAD - a);
+ 				if(dis_square < dotR_square) {
+ 					pixels[pixels.length] = new PolarPoint(i, j<0? j+360: j);
+ 				}
+ 			}
+ 		}
+ 		return pixels;
+ 	}
+ 	
+ 	function drawPolar(ctx, polarPos, color) {
+ 		var a = (polarPos.a - 0.5)*AU_IN_RAD;
+ 		var r = polarPos.r*rUnit + r0;
+		ctx.beginPath();
+ 		ctx.strokeStyle = color;
+ 		ctx.arc(100, 100, r, a, a+ AU_IN_RAD);
+ 		ctx.stroke();
+ 	}
+ 	
+ 	ctx.lineWidth = 3;
+ 	function povDraw(ctx, pt, color) {
+ 		var polPos = dot2PolarPixels(pt);
+ 		for(var j=0; j<polPos.length; j++) {
+ 			drawPolar(ctx, polPos[j], color);
+ 		}
+ 	} 	
+ 	/*for(var i=0; i<points.length; i++) {
+			povDraw(ctx, points[i], 'black');
+ 		}
+ 	}*/
 	</script>
 	</body>
 	
