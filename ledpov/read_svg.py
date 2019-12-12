@@ -18,7 +18,7 @@ doc.unlink()
 # print the line draw commands
 device_height = 112.5
 ID_SCALE = img_height/device_height #scale between image image and device
-scale = 1.1#0.9
+scale = 1.1#0.9 #
 
 def img2device(a):
 	return (a - img_height/2)/ID_SCALE*scale + device_height/2
@@ -32,4 +32,4 @@ for path_string in path_strings:
             x1 = img2device(e.end.real - left_margin)
             y1 = img2device(e.end.imag)
             #print("(%.2f, %.2f) - (%.2f, %.2f)" % (x0, y0, x1, y1))
-            print("new Point(%.2f, %.2f)," % (x0, y0))
+            print("{%d, %d}," % (round(x0), round(y0)))

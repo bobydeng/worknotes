@@ -55,7 +55,7 @@ led_cnt = 40
 
 rate = width/len_total/2.0
 
-div = 360#*8
+div = 200#*8
 RAD_PER_DIV = math.pi*2/div 
 #DEG_PER_RAD = 180.0/math.pi
 

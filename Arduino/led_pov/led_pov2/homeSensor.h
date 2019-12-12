@@ -2,7 +2,7 @@
 
 #define __HOME_SENSOR__
 
-#define U18  A7
+//#define U18  A7
 #define  U18 12
 
 typedef void (*OnHome)(int ht);

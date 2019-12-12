@@ -3,6 +3,9 @@
 #include "Screen.h"
 #include "player.h"
 
+//angle scan period
+#define ASP 100
+
 Screen screen;
 
 #ifdef USING_TIMER
@@ -81,7 +84,7 @@ void init_timer2() {
 }
 
 ISR(TIMER0_COMPA_vect){
-  player.tick();
+  player.play();
   //digitalWrite(pin0, HIGH);
 }
 
@@ -129,11 +132,11 @@ void setup() {
 }
 
 void loop() {
-  Point pt(100,100);
-  Star star(10, pt, -10.0, 3.0, NULL, NULL);
-#ifndef USING_TIMER  
+#ifndef USING_TIMER 
   homeSensor.sense();
   screen.lineScan();
+  //player.play();
+  delayMicroseconds(ASP);
 #endif
 }
 

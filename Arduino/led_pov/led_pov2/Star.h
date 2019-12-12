@@ -6,80 +6,113 @@
 
 #define G 0.4
 
-typedef void (*OnStarHome)();
-typedef void (*OnStarDisappear)();
-
-Point farPt(-1000.0, -1000.0);
+#define HOMED 1
+#define DISAPPEARED 2
 
 class Star {
-  public:
-  Star(int startTime, Point & targetPos, float startY, 
-    float xSpeed, OnStarHome onHome, OnStarDisappear onDisappear) {
-      this->startTime = startTime;
-      this->targetPos = targetPos;
-      this->xSpeed = xSpeed;
-      this->fallTime = sqrt(2* (targetPos.y - startY)/G);
-      startPos.x = targetPos.x + xSpeed * fallTime;
-      startPos.y = startY;
-      float xFromC = targetPos.x - SCR_HALF_WIDTH; //offset from screen center
-      float yFromC = targetPos.y - SCR_HALF_WIDTH; 
-      this->r = sqrt(xFromC*xFromC + yFromC*yFromC);
-      this->angle = atan2(yFromC, xFromC);
-      this->explodeSpeed = rand()*5 + 3;
+public:
+  void init(uint8_t targetX, uint8_t targetY) {
+      this->targetX = targetX;
+      this->targetY = targetY;
 
-      this->onHome = onHome;
-      this->onDisappear = onDisappear;
+      init();
   }
-  
-  Point& fall(int time) {
-    if(homed) {
-      return targetPos;
+
+  void init() {
+    flags = 0;
+    
+    startTime = rand()*200;
+    startY = rand()*(-11) - 28;
+    xSpeed = random()*2.8 + 1.7;
+    fallTime = sqrt(2* (targetY - startY)/G);
+    startX = targetX + xSpeed * fallTime;
+  }
+
+  //return true if homed
+  boolean fall(Point& currentPos) {
+    if(homed()) {
+      currentPos.x = targetX;
+      currentPos.y = targetY;
+      return true;
     }
     if(time <= startTime) {
-      return startPos;
+      currentPos.x = startX;
+      currentPos.y = startY;
     }
     int delT = time - startTime;
     if(delT > fallTime) {
-      homed = true;
-      if(onHome) {
-        onHome();
-      }
-      return targetPos;
+      setHomed();
+      currentPos.x = targetX;
+      currentPos.y = targetY;
+      return true;
     }
-    float x = startPos.x - delT*xSpeed;
-    float y = startPos.y + 0.5*delT*delT;
-    //return new Point(x,y);
+    float x = startX - delT*xSpeed;
+    float y = startY + 0.5*delT*delT;
     currentPos.x = x;
     currentPos.y = y;
-    return currentPos;
+    return false;
   }
 
-  Point& explode(int time) {
-    if(disappeared) {
-      return farPt;
+   //return true if disappeared
+   boolean explode(Point& currentPos) {
+    if(disappeared()) {
+      currentPos.x = -1000.0;
+      currentPos.y = -1000.0;
+      return true;
     }
-    float r = this->r + time*explodeSpeed;
+
+    //calculate online to reduce memory usage
+    float xFromC = targetX - SCR_HALF_WIDTH; //offset from screen center
+    float yFromC = targetY - SCR_HALF_WIDTH; 
+    float r = sqrt(xFromC*xFromC + yFromC*yFromC);
+    float angle = atan2(yFromC, xFromC);
+    
+    r = r + time*xSpeed; //resuse xSpeed as explode speed, to reduce memory usage
     float x = r*cos(angle) + SCR_HALF_WIDTH;
     float y = r*sin(angle) + SCR_HALF_WIDTH;
     if(x<0 || x> SCR_WIDTH || y<0 || y>SCR_WIDTH) {
-      disappeared = true;
-      if( onDisappear) {
-        onDisappear();
-      }
+      setDisappeared();
+      currentPos.x = -1000.0;
+      currentPos.y = -1000.0;
+      return true;
     }
     currentPos.x = x;
     currentPos.y = y;
-    return currentPos;
+    return false;
   }
-  private:
-  int startTime, fallTime;
-  Point& targetPos;
-  Point startPos, currentPos;
-  double xSpeed, r, angle, explodeSpeed;
-  boolean homed=false, disappeared=false;
-  OnStarHome onHome;
-  OnStarDisappear onDisappear;
+
+  static void tick() {
+    Star::time++;
+  }
+
+  static void resetTime() {
+    Star::time = 0;
+  }
+
+private:
+  uint8_t startTime, fallTime;
+  uint8_t targetX, targetY, startX, startY;
+  uint8_t xSpeed;
+  uint8_t flags;
+  static int time;
+
+  inline boolean homed() {
+    return flags & HOMED;
+  }
+
+  inline boolean disappeared() {
+    return flags & DISAPPEARED;
+  }
+
+  inline void setHomed() {
+    flags |= HOMED;
+  }
+
+  inline void setDisappeared() {
+    flags |= DISAPPEARED;
+  }
 };
 
+int Star::time = 0;
 
 #endif

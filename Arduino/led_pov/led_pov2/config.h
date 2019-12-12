@@ -3,6 +3,6 @@
 
 #define USING_TIMER __using_timer__
 //angle resolution
-#define SCR_ANGLE_RES 360
+#define SCR_ANGLE_RES 200
 
 #endif
