@@ -10,6 +10,7 @@ class Point {
   float x, y;
 };
 
+/*
 class PolarPoint {
   public:
   PolarPoint(){}
@@ -20,6 +21,6 @@ class PolarPoint {
 
   float r, a;
 };
-
+*/
 
 #endif

@@ -11,7 +11,7 @@
 
 class Star {
 public:
-  void init(uint8_t targetX, uint8_t targetY) {
+  void init(uint8 targetX, uint8 targetY) {
       this->targetX = targetX;
       this->targetY = targetY;
 
@@ -21,15 +21,15 @@ public:
   void init() {
     flags = 0;
     
-    startTime = rand()*200;
-    startY = rand()*(-11) - 28;
-    xSpeed = random()*2.8 + 1.7;
+    startTime = rand()%200;
+    startY = -rand()%11 - 28;
+    xSpeed = rand()%3 + 1.7;
     fallTime = sqrt(2* (targetY - startY)/G);
     startX = targetX + xSpeed * fallTime;
   }
 
   //return true if homed
-  boolean fall(Point& currentPos) {
+  bool fall(Point& currentPos) {
     if(homed()) {
       currentPos.x = targetX;
       currentPos.y = targetY;
@@ -47,14 +47,14 @@ public:
       return true;
     }
     float x = startX - delT*xSpeed;
-    float y = startY + 0.5*delT*delT;
+    float y = startY + 0.5*delT*delT*G;
     currentPos.x = x;
     currentPos.y = y;
     return false;
   }
 
    //return true if disappeared
-   boolean explode(Point& currentPos) {
+   bool explode(Point& currentPos) {
     if(disappeared()) {
       currentPos.x = -1000.0;
       currentPos.y = -1000.0;
@@ -90,17 +90,17 @@ public:
   }
 
 private:
-  uint8_t startTime, fallTime;
-  uint8_t targetX, targetY, startX, startY;
-  uint8_t xSpeed;
-  uint8_t flags;
+  uint8 startTime, fallTime;
+  uint8 targetX, targetY, startX, startY;
+  uint8 xSpeed;
+  uint8 flags;
   static int time;
 
-  inline boolean homed() {
+  inline bool homed() {
     return flags & HOMED;
   }
 
-  inline boolean disappeared() {
+  inline bool disappeared() {
     return flags & DISAPPEARED;
   }
 
@@ -112,7 +112,5 @@ private:
     flags |= DISAPPEARED;
   }
 };
-
-int Star::time = 0;
 
 #endif

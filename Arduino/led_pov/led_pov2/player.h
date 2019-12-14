@@ -3,8 +3,9 @@
 #define __PLAYER__
 
 #include "Screen.h"
+#include "Star.h"
 
-const int imgs[][SCR_ANGLE_RES] PROGMEM = {
+const int imgs[][SCR_ANGLE_RES] /*PROGMEM*/ = {
 {40960,40960,40960,40960,40960,40968,32776,32776,36864,36880,
 36880,38944,34880,36800,34688,32768,32768,32896,33216,33728,
 33536,34304,1536,1024,1024,1024,1024,1028,1030,33798,
@@ -171,23 +172,30 @@ const uint8_t BHData[][2] /*PROGMEM*/ = {
 };
 
 #define STAR_NUM (sizeof(SHData)/2)
+#define DOT_R 2.5
+
 
 class Scene {
 public:
-  void prepare(){};
-  virtual boolean play(); //return true if done
+  virtual void prepare();
+  virtual bool play(); //return true if done
 };
 
 class Scene0: public Scene {
 public:
   Scene0(Screen & screen):screen(screen) {};
-  boolean play() {
-    iut%=500;
+  void prepare(){
+    iut = 0;
+    mst = 0;
+  }
+  
+  bool play() {
+    iut%=300;
     if(iut == 0) {
       if(mst > 1) {
         return true;
       }
-      drawImg();
+      screen.draw_P(imgs[mst]);
       screen.flush(); //switch image buffer;
       mst++;
     }
@@ -197,12 +205,7 @@ public:
 private:
   Screen & screen;
   int iut; //image update ticks
-  uint8_t mst = 0; //micro steps
-  void drawImg() {
-    for(int i=0; i<STAR_NUM; i++) {
-      screen.setScanLineData(100 ,i);
-    }
-  }
+  uint8 mst; //micro steps
 };
 
 class Scene1: public Scene{
@@ -212,45 +215,78 @@ public:
   void prepare() {
     Star::resetTime();
     done = false; //reset for next round
+    iut = 0;
   }
-  boolean play() {
-    if(done) {
-      return true;
-    }
-    Star::tick();
-    int doneCnt = 0;
-    Point cp;
-    for(int i=0; i< STAR_NUM; i++ ) {
-      boolean oneDone = starAct(stars[i], cp);
-      screen.drawDot(cp, 3.0);
-      if(oneDone) {
-         doneCnt++;
+  bool play() {
+    if(iut == 0) {
+      if(done) {
+        return true;
       }
+      Star::tick();
+      int doneCnt = 0;
+      Point cp;
+      screen.clear();
+      for(int i=0; i< STAR_NUM; i++ ) {
+        bool oneDone = starAct(stars[i], cp);
+        screen.drawDot(cp.x, cp.y, DOT_R);
+        if(oneDone) {
+           doneCnt++;
+        }
+      }
+      screen.flush();
+      done = doneCnt == STAR_NUM; //just flag it, not really done yet, one more frame to show
     }
-    screen.flush();
-    done = doneCnt == STAR_NUM; //just flag it, not really done yet, one more frame to show
+    iut++;
+    iut%=10;
     return false;
   }
 
 protected:
-  boolean starAct(Star& star, Point& cp) {
+  bool starAct(Star& star, Point& cp) {
     return star.fall(cp);
   }
 private:
   Screen& screen;
   Star* stars;
-  boolean done=false;
+  bool done=false;
+  int iut;
 };
 
 class Scene2: public Scene {
 public:
   Scene2(Screen& screen):screen(screen) {}
-  boolean play() {
-    return true;
+  void prepare() {
+    screen.clear();
+    for(int i=0; i< STAR_NUM; i++ ) {
+      int point = pgm_read_word(BHData[i]);
+      screen.drawDot(point, point>>8, DOT_R);
+    }
+       
+    iut=0;
+    reliefPeriod = 60;
+    isRelief = true;
+  }
+  bool play() {
+    iut++;
+
+    int period = isRelief? reliefPeriod : reliefPeriod/2;
+    if(iut >= period) {
+      screen.flush(); //switch buffer
+      isRelief != isRelief;
+      reliefPeriod--;
+      iut = 0;
+    }
+    
+    if(isRelief && reliefPeriod < 40) {
+      return true;
+    }
+    return false;
   }
 private:
   Screen & screen;
-  uint8_t steps;
+  int iut; //image update ticks
+  int reliefPeriod;
+  bool isRelief; //relief or shrink
 };
 
 class Scene3: public Scene1{
@@ -258,7 +294,7 @@ public:
   Scene3(Screen& screen, Star* stars):Scene1(screen,stars) {
   }
 protected:
-  boolean starAct(Star& star, Point& cp) {
+  bool starAct(Star& star, Point& cp) {
     return star.explode(cp);
   }
 };
@@ -269,9 +305,10 @@ class Player {
  public:
   Player(Screen& screen) {
     for(int i=0; i< STAR_NUM; i++ ) {
-      heartStars[i].init(SHData[i][0],SHData[i][1]);
+      int point = pgm_read_word(SHData[i]);
+      //heartStars[i].init(SHData[i][0],SHData[i][1]);
+      heartStars[i].init(point, point>>8);
     }
-    //heartStars[0].init(BHData[0][0],BHData[0][1]);
     
     scenes[0] =  new Scene0(screen);
     scenes[1] =  new Scene1(screen, heartStars);
@@ -287,10 +324,13 @@ class Player {
   }
   
   void play() {
-    boolean done=scenes[steps]->play();
+    bool done=scenes[steps]->play();
     if(done) {
       steps++;
-      steps %=SCENE_NUM;
+      steps %= SCENE_NUM;
+      if(steps == 0) { //start new round, re-initialize stars
+        initStars();
+      }
       scenes[steps]->prepare();
     }
   }
@@ -298,6 +338,12 @@ class Player {
 private:
   Scene* scenes[SCENE_NUM];
   Star heartStars[STAR_NUM];
-  uint8_t steps=0;
+  uint8 steps=0;
+  
+  void initStars() {
+    for(int i=0; i< STAR_NUM; i++ ) {
+      heartStars[i].init();
+    }
+  }
 };
 #endif

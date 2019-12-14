@@ -6,6 +6,11 @@
 //angle scan period
 #define ASP 100
 
+#ifdef __TEST__
+int asidx =0 ;
+int toggle = 0;
+#endif
+
 Screen screen;
 
 #ifdef USING_TIMER
@@ -84,14 +89,16 @@ void init_timer2() {
 }
 
 ISR(TIMER0_COMPA_vect){
+#ifdef __TEST__  
+  digitalWrite(pin0, HIGH);
+#else
   player.play();
-  //digitalWrite(pin0, HIGH);
+#endif
 }
 
 //int toggle = 0; 
 ISR(TIMER1_COMPA_vect){
-  screen.lineScan();
-  /*
+#ifdef __TEST__  
   asidx++;
   asidx%=10000;
   if(asidx==0) {
@@ -102,13 +109,16 @@ ISR(TIMER1_COMPA_vect){
       digitalWrite(pin0+1, LOW);
       toggle = 1;
     }
-  }*/
+  }
+#else
+  screen.lineScan();
+#endif
 }
 
 ISR(TIMER2_COMPA_vect){
-  homeSensor.sense();
+#ifdef __TEST__
   //digitalWrite(pin0+2, state);
-  /*asidx++;
+  asidx++;
   asidx%=10000;
   if(asidx==0) {
     if(toggle) {
@@ -118,7 +128,10 @@ ISR(TIMER2_COMPA_vect){
       digitalWrite(pin0+2, LOW);
       toggle = 1;
     }
-  }*/
+  }
+#else
+  homeSensor.sense();
+#endif
 }
 
 void setup() {

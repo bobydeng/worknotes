@@ -1,7 +1,7 @@
 #ifndef __SCREEN__
 #define __SCREEN__
 
-//#include <arduino.h>
+#include <avr/pgmspace.h>
 #include "config.h"
 #include "Point.h"
 
@@ -10,7 +10,7 @@
 #define LED_CNT 16
 #define SCR_RUNIT 2.5
 
-#define SCR_AUNIT PI/SCR_ANGLE_RES
+#define SCR_AUNIT (2.0* M_PI/SCR_ANGLE_RES)
 
 //15 + SCR_RUNIT/2
 #define SCR_R0 16.25 
@@ -20,8 +20,6 @@
 //A0 to A5
 #define pin10 14
 #define pin15 19
-
-int data[2][SCR_ANGLE_RES];
 
 class Screen {
   public:
@@ -34,26 +32,32 @@ class Screen {
       pinMode(Pin, OUTPUT);
     }
   }
+
+  void clear() {
+    memset(writeBuff, 0, sizeof(int)*SCR_ANGLE_RES);
+  }
   
-  void drawDot(Point &c, float dotR) {
-    float x = c.x - SCR_HALF_WIDTH;
-    float y = c.y - SCR_HALF_WIDTH;
-    float r = sqrt(x*x + y*y);
+  void drawDot(uint8 cx, uint8 cy, float dotR) {
+    float x = cx - SCR_HALF_WIDTH;
+    float y = cy - SCR_HALF_WIDTH;
+    float rr = x*x + y*y;
+    float r = sqrt(rr);
     int rm = ceil((r - SCR_R0 - dotR)/SCR_RUNIT);
     int rM = (r - SCR_R0 + dotR)/SCR_RUNIT;
     float a = atan2(y, x);
     float aExtent = asin(dotR/r);
     int am = ceil((a - aExtent)/SCR_AUNIT);
     int aM = (a + aExtent)/SCR_AUNIT;
+    float rrDot = dotR*dotR;
     for(int i=rm; i<=rM; i++) {
       if(i<0 || i> LED_CNT) {
         continue;
       }
       float r1=i*SCR_RUNIT + SCR_R0;
       for(int j=am; j<=aM; j++) {
-        float dis_square = r*r + r1*r1 - 2*r*r1*cos(j*SCR_AUNIT - a);
-        if(dis_square < dotR*dotR) {
-          writeBuff[j] |= 1<<i;
+        float dis_square = rr + r1*r1 - 2*r*r1*cos(j*SCR_AUNIT - a);
+        if(dis_square < rrDot) {
+          writeBuff[j<0? j+SCR_ANGLE_RES: j] |= 0x8000 >> i;// 1<<i;
         }
       }
     }
@@ -65,12 +69,18 @@ class Screen {
     writeBuff = temp;
   }
 
-  void draw(int* data) {
-    memcpy(data, writeBuff, sizeof(int)*SCR_ANGLE_RES);
+  void draw(int* pData) {
+    memcpy(writeBuff, pData, sizeof(int)*SCR_ANGLE_RES);
+    /*for(int i=0; i<SCR_ANGLE_RES; i++) {
+      writeBuff[i] = 0xFF;
+    }*/
   }
 
-  void setScanLineData(int data, int scanLine) {
-    writeBuff[scanLine] = data;
+  void draw_P(const int* pData) {
+   memcpy_P(writeBuff, pData, sizeof(int)*SCR_ANGLE_RES);
+    /*for(int i=0; i<SCR_ANGLE_RES; i++) {
+      writeBuff[i] = i;
+    }*/
   }
 
   void startFrame() {
@@ -98,10 +108,11 @@ class Screen {
     PORTC = leds >> 9;  //10~15 -> C０~ C5
 
   }
-  
+ 
+  int asidx = SCR_ANGLE_RES;
+  int data[2][SCR_ANGLE_RES];
   int* activeBuff = data[0];
   int* writeBuff = data[1];
-  int asidx = SCR_ANGLE_RES;
 };
 
 #endif
