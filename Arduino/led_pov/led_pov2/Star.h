@@ -21,8 +21,8 @@ public:
   void init() {
     flags = 0;
     
-    startTime = rand()%200;
-    startY = -rand()%11 - 28;
+    startTime = rand()%100;
+    startY = -rand()%11 - 18;
     xSpeed = rand()%3 + 1.7;
     fallTime = sqrt(2* (targetY - startY)/G);
     startX = targetX + xSpeed * fallTime;
@@ -38,6 +38,7 @@ public:
     if(time <= startTime) {
       currentPos.x = startX;
       currentPos.y = startY;
+      return false;
     }
     int delT = time - startTime;
     if(delT > fallTime) {
@@ -67,7 +68,7 @@ public:
     float r = sqrt(xFromC*xFromC + yFromC*yFromC);
     float angle = atan2(yFromC, xFromC);
     
-    r = r + time*xSpeed; //resuse xSpeed as explode speed, to reduce memory usage
+    r = r + time*xSpeed/3.0; //resuse xSpeed as explode speed, to reduce memory usage
     float x = r*cos(angle) + SCR_HALF_WIDTH;
     float y = r*sin(angle) + SCR_HALF_WIDTH;
     if(x<0 || x> SCR_WIDTH || y<0 || y>SCR_WIDTH) {
@@ -91,7 +92,8 @@ public:
 
 private:
   uint8 startTime, fallTime;
-  uint8 targetX, targetY, startX, startY;
+  uint8 targetX, targetY, startX;
+  char startY;
   uint8 xSpeed;
   uint8 flags;
   static int time;
@@ -112,5 +114,6 @@ private:
     flags |= DISAPPEARED;
   }
 };
+
 
 #endif

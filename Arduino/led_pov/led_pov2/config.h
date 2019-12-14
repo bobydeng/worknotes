@@ -1,8 +1,6 @@
 #ifndef __CONFIG__
 #define __CONFIG__
 
-#include <Arduino.h>
-
 #define USING_TIMER __using_timer__
 //angle resolution
 #define SCR_ANGLE_RES 200
@@ -11,8 +9,9 @@ typedef unsigned char uint8;
 
 //#define __TEST__
 
-#ifdef __TEST__
-
+#ifndef __TEST__
+#include <Arduino.h>
+#else
     #include <math.h>
     #include <string.h>
     #include <stdlib.h>
@@ -22,12 +21,16 @@ typedef unsigned char uint8;
     #define HIGH 1
     #define LOW 0
 
+    #define PROGMEM
+
     typedef unsigned char uint8_t;
+    typedef unsigned short uint16;
 
     extern void pinMode(int a, int b);
     extern void digitalWrite(int a, int b);
-    extern int pgm_read_word(const uint8_t*);
-    extern void * memcpy_P(void*, const void*, int);
+    extern uint16 pgm_read_word(const void*);
+
+    #define memcpy_P(d,s, size) memcpy(d, s, size)
 
     extern int PORTB, PORTC, PORTD;
 

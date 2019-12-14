@@ -5,7 +5,7 @@
 #include "Screen.h"
 #include "Star.h"
 
-const int imgs[][SCR_ANGLE_RES] /*PROGMEM*/ = {
+const int imgs[][SCR_ANGLE_RES] PROGMEM = {
 {40960,40960,40960,40960,40960,40968,32776,32776,36864,36880,
 36880,38944,34880,36800,34688,32768,32768,32896,33216,33728,
 33536,34304,1536,1024,1024,1024,1024,1028,1030,33798,
@@ -49,7 +49,7 @@ const int imgs[][SCR_ANGLE_RES] /*PROGMEM*/ = {
 32830,32830,34366,36382,36380,36608,36608,36608,36608,36608}
 };
 
-const uint8_t SHData[][2] /*PROGMEM*/ = {
+const uint8_t SHData[][2] PROGMEM = {
 {56, 89},
 {53, 87},
 {50, 86},
@@ -110,7 +110,7 @@ const uint8_t SHData[][2] /*PROGMEM*/ = {
 {60, 87}
 };
 
-const uint8_t BHData[][2] /*PROGMEM*/ = {
+const uint8_t BHData[][2] PROGMEM = {
 {56, 96},
 {52, 94},
 {48, 92},
@@ -172,18 +172,18 @@ const uint8_t BHData[][2] /*PROGMEM*/ = {
 };
 
 #define STAR_NUM (sizeof(SHData)/2)
-#define DOT_R 2.5
+#define DOT_R 1.5
 
 
 class Scene {
 public:
-  virtual void prepare();
-  virtual bool play(); //return true if done
+  virtual void prepare() = 0;
+  virtual bool play() = 0; //return true if done
 };
 
 class Scene0: public Scene {
 public:
-  Scene0(Screen & screen):screen(screen) {};
+  Scene0(Screen & screen):screen(screen) {}
   void prepare(){
     iut = 0;
     mst = 0;
@@ -314,6 +314,7 @@ class Player {
     scenes[1] =  new Scene1(screen, heartStars);
     scenes[2] =  new Scene2(screen);
     scenes[3] =  new Scene3(screen, heartStars);
+    //scenes[0] =  scenes[1];
     scenes[0]->prepare();
   }
 

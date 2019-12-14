@@ -1,9 +1,12 @@
 #ifndef __SCREEN__
 #define __SCREEN__
 
-#include <avr/pgmspace.h>
 #include "config.h"
 #include "Point.h"
+
+#ifndef __TEST__
+#include <avr/pgmspace.h>
+#endif
 
 #define SCR_WIDTH 112.5
 #define SCR_HALF_WIDTH (SCR_WIDTH/2)
@@ -37,7 +40,7 @@ class Screen {
     memset(writeBuff, 0, sizeof(int)*SCR_ANGLE_RES);
   }
   
-  void drawDot(uint8 cx, uint8 cy, float dotR) {
+  void drawDot(int cx, int cy, float dotR) {
     float x = cx - SCR_HALF_WIDTH;
     float y = cy - SCR_HALF_WIDTH;
     float rr = x*x + y*y;
@@ -57,7 +60,11 @@ class Screen {
       for(int j=am; j<=aM; j++) {
         float dis_square = rr + r1*r1 - 2*r*r1*cos(j*SCR_AUNIT - a);
         if(dis_square < rrDot) {
-          writeBuff[j<0? j+SCR_ANGLE_RES: j] |= 0x8000 >> i;// 1<<i;
+         int angIdx = j<0? j+SCR_ANGLE_RES: j;
+         /*if(angIdx > 50 && angIdx < 150) {
+            int m = j;
+         }*/
+          writeBuff[angIdx] |= 0x8000 >> i;// 1<<i;
         }
       }
     }
