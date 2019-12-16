@@ -5,6 +5,8 @@
 //angle resolution
 #define SCR_ANGLE_RES 200
 
+//#define __DEBUG__
+
 typedef unsigned char uint8;
 
 //#define __TEST__
@@ -15,6 +17,7 @@ typedef unsigned char uint8;
     #include <math.h>
     #include <string.h>
     #include <stdlib.h>
+    #include <iostream>
 
     #define OUTPUT 1
     #define INPUT 0

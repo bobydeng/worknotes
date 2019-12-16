@@ -172,7 +172,7 @@ const uint8_t BHData[][2] PROGMEM = {
 };
 
 #define STAR_NUM (sizeof(SHData)/2)
-#define DOT_R 1.5
+#define DOT_R 2.0
 
 
 class Scene {
@@ -234,15 +234,18 @@ public:
         }
       }
       screen.flush();
+#ifdef __DEBUG__
+      screen.dumpData();
+#endif
       done = doneCnt == STAR_NUM; //just flag it, not really done yet, one more frame to show
     }
     iut++;
-    iut%=10;
+    iut%=1;//10;
     return false;
   }
 
 protected:
-  bool starAct(Star& star, Point& cp) {
+  virtual bool starAct(Star& star, Point& cp) {
     return star.fall(cp);
   }
 private:
@@ -259,7 +262,7 @@ public:
     screen.clear();
     for(int i=0; i< STAR_NUM; i++ ) {
       int point = pgm_read_word(BHData[i]);
-      screen.drawDot(point, point>>8, DOT_R);
+      screen.drawDot((uint8)point, point>>8, DOT_R);
     }
        
     iut=0;

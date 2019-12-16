@@ -11,6 +11,8 @@ int asidx =0 ;
 int toggle = 0;
 #endif
 
+uint8 t0Ticks = 0;
+
 Screen screen;
 
 #ifdef USING_TIMER
@@ -92,7 +94,7 @@ ISR(TIMER0_COMPA_vect){
 #ifdef __TEST__  
   digitalWrite(pin0, HIGH);
 #else
-  player.play();
+  t0Ticks++;
 #endif
 }
 
@@ -142,15 +144,30 @@ void setup() {
   init_timer2();
   sei();//allow interrupt
 #endif
+
+  //Initialize serial and wait for port to open:
+  Serial.begin(115200);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  // prints title with ending line break
+  Serial.println("pov");
+
 }
 
 void loop() {
 #ifndef USING_TIMER 
   homeSensor.sense();
   screen.lineScan();
-  //player.play();
   delayMicroseconds(ASP);
 #endif
+  if(t0Ticks>0) {
+    cli();//stop interrupts
+    t0Ticks = 0;
+    sei();//allow interrupt
+    player.play();
+  }
 }
 
 

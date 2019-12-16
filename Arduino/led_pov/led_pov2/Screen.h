@@ -40,22 +40,23 @@ class Screen {
     memset(writeBuff, 0, sizeof(int)*SCR_ANGLE_RES);
   }
   
-  void drawDot(int cx, int cy, float dotR) {
+  void drawDot(float cx, float cy, float dotR) {
     float x = cx - SCR_HALF_WIDTH;
-    float y = cy - SCR_HALF_WIDTH;
+    float y = -(cy - SCR_HALF_WIDTH); //spindle clockwise in screen coordinate system
     float rr = x*x + y*y;
     float r = sqrt(rr);
     int rm = ceil((r - SCR_R0 - dotR)/SCR_RUNIT);
     int rM = (r - SCR_R0 + dotR)/SCR_RUNIT;
+    rm = rm < 0? 0: rm;
+    rM = rM > LED_CNT-1? LED_CNT-1 : rM;
+
     float a = atan2(y, x);
     float aExtent = asin(dotR/r);
     int am = ceil((a - aExtent)/SCR_AUNIT);
     int aM = (a + aExtent)/SCR_AUNIT;
     float rrDot = dotR*dotR;
+
     for(int i=rm; i<=rM; i++) {
-      if(i<0 || i> LED_CNT) {
-        continue;
-      }
       float r1=i*SCR_RUNIT + SCR_R0;
       for(int j=am; j<=aM; j++) {
         float dis_square = rr + r1*r1 - 2*r*r1*cos(j*SCR_AUNIT - a);
@@ -69,7 +70,33 @@ class Screen {
       }
     }
   }
-  
+
+#ifdef __DEBUG__
+#ifdef __TEST__
+  void dumpData() {
+      for(int i=0; i<SCR_ANGLE_RES; i++) {
+        int d = activeBuff[i];
+        for(int j=0;j<16;j++) {
+            std::cout << ((d & 1<<j)? '*' : '.') ;
+        }
+        std::cout << '\n';
+      }
+      std::cout << "\n\n\n\n\n";
+  }
+#else
+  void dumpData() {
+      for(int i=0; i<SCR_ANGLE_RES; i++) {
+        int d = activeBuff[i];
+        for(int j=0;j<16;j++) {
+            Serial.write((d & 1<<j)? '*' : '.') ;
+        }
+        Serial.write('\n');
+      }
+      Serial.print("\n\n\n\n\n");
+  }
+#endif
+#endif
+
   void flush() {
     int* temp = activeBuff;
     activeBuff = writeBuff;

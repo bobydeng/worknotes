@@ -4,7 +4,10 @@
 #include "Screen.h"
 #include "Point.h"
 
-#define G 0.4
+// 1 cs = 0.01s = 10ms
+// G in mm/cs^2
+//#define G 0.4
+#define G 0.024
 
 #define HOMED 1
 #define DISAPPEARED 2
@@ -22,10 +25,11 @@ public:
     flags = 0;
     
     startTime = rand()%100;
-    startY = -rand()%11 - 18;
-    xSpeed = rand()%3 + 1.7;
+    startY = -rand()%5 - 5;
+    //xSpeed = rand()%3 + 1.7;
+    xSpeed = rand()%30 + 30;  // 30~60 mm/s = 0.3~0.6 mm/cs, store in uint8 to reduce memeory usage
     fallTime = sqrt(2* (targetY - startY)/G);
-    startX = targetX + xSpeed * fallTime;
+    startX = targetX + ((int)xSpeed) * fallTime/100;
   }
 
   //return true if homed
@@ -47,7 +51,7 @@ public:
       currentPos.y = targetY;
       return true;
     }
-    float x = startX - delT*xSpeed;
+    float x = startX - delT*(xSpeed/100.0);
     float y = startY + 0.5*delT*delT*G;
     currentPos.x = x;
     currentPos.y = y;
@@ -68,15 +72,17 @@ public:
     float r = sqrt(xFromC*xFromC + yFromC*yFromC);
     float angle = atan2(yFromC, xFromC);
     
-    r = r + time*xSpeed/3.0; //resuse xSpeed as explode speed, to reduce memory usage
-    float x = r*cos(angle) + SCR_HALF_WIDTH;
-    float y = r*sin(angle) + SCR_HALF_WIDTH;
-    if(x<0 || x> SCR_WIDTH || y<0 || y>SCR_WIDTH) {
+    r = r + time*(xSpeed/100.0); //resuse xSpeed as explode speed, to reduce memory usage
+    if(r> SCR_HALF_WIDTH) {
       setDisappeared();
       currentPos.x = -1000.0;
       currentPos.y = -1000.0;
       return true;
     }
+
+    float x = r*cos(angle) + SCR_HALF_WIDTH;
+    float y = r*sin(angle) + SCR_HALF_WIDTH;
+
     currentPos.x = x;
     currentPos.y = y;
     return false;
