@@ -7,10 +7,15 @@
 // 1 cs = 0.01s = 10ms
 // G in mm/cs^2
 //#define G 0.4
-#define G 0.024
+//#define G 0.024
+#define G 0.05
+
 
 #define HOMED 1
 #define DISAPPEARED 2
+
+#define xSpeedRate 10.0
+
 
 class Star {
 public:
@@ -24,12 +29,12 @@ public:
   void init() {
     flags = 0;
     
-    startTime = rand()%100;
+    startTime = rand()%150;
     startY = -rand()%5 - 5;
     //xSpeed = rand()%3 + 1.7;
-    xSpeed = rand()%30 + 30;  // 30~60 mm/s = 0.3~0.6 mm/cs, store in uint8 to reduce memeory usage
+    xSpeed = rand()%60 + 30;  // 60~90 mm/s = 0.6~0.9 mm/cs, store in uint8 to reduce memeory usage
     fallTime = sqrt(2* (targetY - startY)/G);
-    startX = targetX + ((int)xSpeed) * fallTime/100;
+    startX = targetX + ((int)xSpeed) * fallTime/xSpeedRate;
   }
 
   //return true if homed
@@ -51,7 +56,7 @@ public:
       currentPos.y = targetY;
       return true;
     }
-    float x = startX - delT*(xSpeed/100.0);
+    float x = startX - delT*(xSpeed/xSpeedRate);
     float y = startY + 0.5*delT*delT*G;
     currentPos.x = x;
     currentPos.y = y;
@@ -71,8 +76,9 @@ public:
     float yFromC = targetY - SCR_HALF_WIDTH; 
     float r = sqrt(xFromC*xFromC + yFromC*yFromC);
     float angle = atan2(yFromC, xFromC);
-    
-    r = r + time*(xSpeed/100.0); //resuse xSpeed as explode speed, to reduce memory usage
+
+    //resuse xSpeed as explode speed, to reduce memory usage
+    r = r + time*(xSpeed/xSpeedRate);
     if(r> SCR_HALF_WIDTH) {
       setDisappeared();
       currentPos.x = -1000.0;

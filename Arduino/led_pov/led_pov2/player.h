@@ -215,11 +215,10 @@ public:
   void prepare() {
     Star::resetTime();
     done = false; //reset for next round
-    iut = 0;
   }
   bool play() {
-    if(iut == 0) {
       if(done) {
+        //postDone();
         return true;
       }
       Star::tick();
@@ -238,21 +237,19 @@ public:
       screen.dumpData();
 #endif
       done = doneCnt == STAR_NUM; //just flag it, not really done yet, one more frame to show
-    }
-    iut++;
-    iut%=1;//10;
-    return false;
+      return false;
   }
 
 protected:
   virtual bool starAct(Star& star, Point& cp) {
     return star.fall(cp);
   }
+
+  //virtual void postDone(){}
 private:
   Screen& screen;
   Star* stars;
   bool done=false;
-  int iut;
 };
 
 class Scene2: public Scene {
@@ -280,7 +277,7 @@ public:
       iut = 0;
     }
     
-    if(isRelief && reliefPeriod < 40) {
+    if(isRelief && reliefPeriod < 34) {
       return true;
     }
     return false;
@@ -300,9 +297,31 @@ protected:
   bool starAct(Star& star, Point& cp) {
     return star.explode(cp);
   }
+  /*void postDone() {
+    delay(2000);
+  }*/
 };
 
-#define SCENE_NUM 4
+class Scene4: public Scene{
+public:
+  Scene4(Screen& screen):screen(screen){}
+  void prepare() {
+    iut = 0;
+    screen.clear();
+    screen.flush();
+  }
+
+  bool play() {
+    iut++;
+    return iut >= 200;
+  }
+private:
+  uint8 iut;
+  Screen& screen;
+};
+
+
+#define SCENE_NUM 5
 
 class Player {
  public:
@@ -317,6 +336,7 @@ class Player {
     scenes[1] =  new Scene1(screen, heartStars);
     scenes[2] =  new Scene2(screen);
     scenes[3] =  new Scene3(screen, heartStars);
+    scenes[4] =  new Scene4(screen);
     //scenes[0] =  scenes[1];
     scenes[0]->prepare();
   }

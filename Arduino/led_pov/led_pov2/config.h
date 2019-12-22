@@ -32,6 +32,7 @@ typedef unsigned char uint8;
     extern void pinMode(int a, int b);
     extern void digitalWrite(int a, int b);
     extern uint16 pgm_read_word(const void*);
+    extern void delay(int);
 
     #define memcpy_P(d,s, size) memcpy(d, s, size)
 
